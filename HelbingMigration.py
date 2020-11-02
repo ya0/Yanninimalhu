@@ -3,6 +3,8 @@ from cellular_automaton import CellularAutomaton, MooreNeighborhood, EdgeRule, C
 from PrisonersDilemma import PrisonersDilemma
 
 class HelbingMigration(CellularAutomaton):
+    L = 10 # side length of square game board
+
     # strategies
     COOPERATE = 1
     DEFECT = 0
@@ -11,20 +13,21 @@ class HelbingMigration(CellularAutomaton):
     # prisoner's dilemma game played between neighbors
     game = PrisonersDilemma(3, 2, 0, 1)
 
-    # probability that the agent randomly resets their strategy
-    r = 0.1
-
-    # probability that the agent resets to COOPERATE, given that they are resetting
-    q = 0.01
+    r = 0.1 # probability that the agent randomly resets their strategy
+    q = 0.01 # probability that the agent resets to COOPERATE, given that they are resetting
 
     # actions
     PLAY = 1
     EVALUATE = 2
     MIGRATE = 3
-    UPDATE = 4
+    EMIGRATE = 4
+    UPDATE = 5
+
+    aspiring_immigrators = dict()
+    immigrated = list()
 
     def __init__(self):
-        super().__init__(dimension=[100, 100], neighborhood=MooreNeighborhood(EdgeRule.IGNORE_MISSING_NEIGHBORS_OF_EDGE_CELLS))
+        super().__init__(dimension=[HelbingMigration.L, HelbingMigration.L], neighborhood=MooreNeighborhood(EdgeRule.IGNORE_MISSING_NEIGHBORS_OF_EDGE_CELLS))
 
     def init_cell_state(self, coordinates):
         # randomly assign cooperative and defecting behaviours to agents
@@ -36,10 +39,9 @@ class HelbingMigration(CellularAutomaton):
         else:
             strategy = HelbingMigration.INACTIVE
 
+        # coordinates of cell (required for migration step)
         xcoord, ycoord = coordinates
 
-        print("xcoord = ", xcoord)
-        print("ycoord = ", ycoord)
         # initialize total payoff
         total_payoff = 0
 
@@ -50,12 +52,14 @@ class HelbingMigration(CellularAutomaton):
         return state
 
     def evolve_rule(self, last_cell_state, neighbors_last_states):
+        # make sure migration dictionary is clear for next step
+        HelbingMigration.aspiring_immigrators.clear()
 
         # check whether this is an "update", "inactive play cooperate", "inactive play defect", "evalute", "migrate", or "update" round.
         action = last_cell_state[2]
 
+        # play prisoner's dilemma game with neighbors
         if action == HelbingMigration.PLAY:
-            # play prisoner's dilemma game with neighbors
 
             if last_cell_state[3] == HelbingMigration.INACTIVE:
                 # simulate games in empty sites with both strategies
@@ -77,25 +81,66 @@ class HelbingMigration(CellularAutomaton):
 
             return new_cell_state
 
+        # check whether active agents would benefit from moving
         if action == HelbingMigration.EVALUATE:
-            # check whether active agents would benefit from moving
 
             if last_cell_state[3] == HelbingMigration.INACTIVE:
-                return last_cell_state
+                return (last_cell_state[0], last_cell_state[1], HelbingMigration.MIGRATE, last_cell_state[3])
 
             for neighbor_state in neighbors_last_states:
                 # check the payoffs of inactive cells using agent's strategy
                 if neighbor_state[3] == HelbingMigration.INACTIVE:
+
                     if last_cell_state[3] == HelbingMigration.COOPERATE:
                         if neighbor_state[4] > last_cell_state[4]:
                             # desirable to migrate
-                            break
+                            if (neighbor_state[0], neighbor_state[1]) in HelbingMigration.aspiring_immigrators:
+                                HelbingMigration.aspiring_immigrators[(neighbor_state[0], neighbor_state[1])].append(last_cell_state)
+                            else:
+                                HelbingMigration.aspiring_immigrators[(neighbor_state[0], neighbor_state[1])] = last_cell_state
+
                     elif last_cell_state[1] == HelbingMigration.DEFECT:
                         if neighbor_state[5] > last_cell_state[4]:
                             # desirable to migrate
-                            break
+                            if (neighbor_state[0], neighbor_state[1]) in HelbingMigration.aspiring_immigrators:
+                                HelbingMigration.aspiring_immigrators[(neighbor_state[0], neighbor_state[1])].append(last_cell_state)
+                            else:
+                                HelbingMigration.aspiring_immigrators[(neighbor_state[0], neighbor_state[1])] = last_cell_state
 
-            return last_cell_state
+            return (last_cell_state[0], last_cell_state[1], HelbingMigration.MIGRATE, last_cell_state[3], last_cell_state[4])
+
+        # move agents *into* desirable empty sites
+        if action == HelbingMigration.MIGRATE:
+
+            if last_cell_state[3] != HelbingMigration.INACTIVE:
+                new_cell_state = (last_cell_state[0], last_cell_state[1], HelbingMigration.EMIGRATE, last_cell_state[3], last_cell_state[4])
+
+            else:
+                new_cell_state = (last_cell_state[0], last_cell_state[1], HelbingMigration.EMIGRATE, last_cell_state[3], last_cell_state[4])
+
+                if HelbingMigration.aspiring_immigrators((last_cell_state[0], last_cell_state[1])):
+                    immigration = 0
+                    while(immigration == 0 and HelbingMigration.aspiring_immigrators):
+                        immigrant = random.choice(HelbingMigration.aspiring_immigrators)
+                        HelbingImitation.aspiring_immigrators.remove(immigrant)
+                        if immigrant not in HelbingMigration.immigrated:
+                            HelbingMigration.immigrated.append(immigrant)
+                            immigration = 1
+                            new_cell_state = (immigrant[0], immigrant[1], HelbingMigration.EMIGRATE, immigrant[3], immigrant[4])
+
+            return new_cell_state
+
+        # move agents *out of* their undesirable current cells
+        if action == HelbingMigration.EMIGRATE:
+
+            if last_cell_state[3] == HelbingMigration.INACTIVE:
+                new_cell_state = (last_cell_state[0], last_cell_state[1], HelbingMigration.EMIGRATE, last_cell_state[3], last_cell_state[4])
+
+            else:
+                # I need to remove the round from the state for the list reference to work here.
+                new_cell_state = last_cell_state
+
+            return new_cell_state
 
     @staticmethod
     def state_to_color(state):
