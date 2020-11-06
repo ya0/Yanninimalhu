@@ -1,2 +1,2 @@
 pygame==1.9.6
-cellular-automaton==1.0.2
+numpy==1.16.5
