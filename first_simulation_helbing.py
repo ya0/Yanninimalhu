@@ -17,7 +17,7 @@ from PrisonersDilemma import PrisonersDilemma
 pd = PrisonersDilemma(1.3, 1 ,0 , 0.1)
 
 
-"""states: 0 empty, 1 allways defect, 0 allwaasy cooperate (subject to change)
+"""states: 0 empty, 1 always defect, 0 always cooperate (subject to change)
 i chose this numbering because to calculate a "deal" 0 stands for defecting and
 1 for cooperating. so just subtracting 1 from the cell value gives the correct
 optin"""
@@ -210,7 +210,7 @@ def imitation():
          
 imitation()
     
-
+#comment
 
 #screen = setup_screen()
 #draw_update(screen, grid)
