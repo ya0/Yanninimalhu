@@ -8,58 +8,43 @@ Created on Fri Oct 23 13:19:59 2020
 """
 simulate the pirsoners dilemma
 """
+from enum import Enum
+
+class Strategy(Enum):
+    cooperate = 0
+    defect = 1
+
+class Player():
+    def __init__(self, strategy, x, y):
+        self.strategy = strategy
+        self.x_pos = x
+        self.y_pos = y
+        self.money = 0
 
 class PrisonersDilemma():
-    
-    T = 0
-    R = 0
-    S = 0
-    P = 0
-    
-    def __init__(self, T, R, S, P):
+    def __init__(self, T, R, P, S):
         """ initialise the prisoners dilemma with:
             T: temptasion
             R: reward
             S: sucker's payoff
             P: punishment
-            
-            eg:
-            pd = PrisonersDilemma(1.3, 1 ,0 , 0.1)
         """
         self.T = T
         self.R = R
-        self.S = S
         self.P = P
-        
-        
-    def make_a_deal(self, player_one, player_two):
-        """ making a deal evaluates a deal. each player can cooperate "1" or be
-        egoistic "0"
-        Parameters:
-            - player_one, player_two: take True,False (respectifely 1 and 0)
-        returns:
-            tuple (payoff_one, payoff_two)
-        """
-        if player_one and player_two:
-            return (self.R, self.R)
-        elif not player_one and not player_two:
-            return (self.P, self.P)
-        elif player_one < player_two:
-            return (self.T, self.S)
+        self.S = S
+
+    def play(self, p1: Player, p2: Player):
+        if p1.strategy == Strategy.cooperate:
+            if p2.strategy == Strategy.cooperate:
+                return (self.R, self.R)
+            elif p2.strategy == Strategy.defect:
+                return (self.S, self.T)
+        elif p1.strategy == Strategy.defect:
+            if p2.strategy == Strategy.cooperate:
+                return (self.T, self.S)
+            elif p2.strategy == Strategy.defect:
+                return (self.P, self.P)
         else:
-            return (self.S, self.T)
-        
-class PlayerModel():
-    p = 0
-    money = 0
-    
-    def __init__(self, p):
-        """ set player by describing the probability of aggreing to a deal
-        int: p in [0,1]
-        """
-        self.p = p
-        
-    
-        
-        
-    
+            print("Player strategies not well defined!")
+            exit()

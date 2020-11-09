@@ -41,11 +41,11 @@ def init_grid(horizontal_cells, vertical_cells, cell_type=bool ):
     return np.zeros((horizontal_cells, vertical_cells), dtype=cell_type)
 
 def init_cell_states(grid):
-    """ the integer in the cell describes the strategy of that cell/actor. 
+    """ the integer in the cell describes the strategy of that cell/actor.
     0: empty cell
     1: defect
     2: cooperate
-    
+
     for the future: i think it is possible to save objects into numpy arrays
     but we could also just reference different strategies by numbers. if we
     want to distinguish between actors we need ID's or save an actual object.
@@ -59,9 +59,7 @@ def init_cell_states(grid):
                 grid[i][j] = 1
             else:
                 grid[i][j] = 2
-                
-                
-                
+
 # draws a rectangle for each cell that is alive
 def draw_update(screen, grid):
     """ updates the display according the the grid (numpy matrix) this is a very
@@ -77,15 +75,15 @@ def draw_update(screen, grid):
             else:
                 pg.draw.rect(screen, (0, 0, 0), tup, 0)
     pg.display.flip()
-    
-    
+
+
 def get_neighbors(grid, i, j):
     """ returns a list of possible neighbors of an index (i.j)
     """
     neighbors = []
     #define list of neighbors to check if they can be added
     possible = [[i+1,j], [i-1,j], [i,j+1], [i,j-1]]
-    
+
     for n in possible:
         # if the index is out of bounds just ignors this case and continues
         try:
@@ -93,42 +91,42 @@ def get_neighbors(grid, i, j):
             neighbors.append(n)
         except:
             True
-    
+
     return neighbors
-    
-    
-    
+
+
+
 def play_with_4neighbors(pd, grid, i, j):
     """ (i,j) plays the prisoners dilemma pd with neighbors in the grid
     return sum off all the games
     """
-    payoff = 0    
+    payoff = 0
     neighbors = get_neighbors(grid,i,j)
-    
+
     for n in neighbors:
-        payoff += pd.make_a_deal(grid[i,j] - 1, grid[n[0],n[1]] - 1)[0]      
-    
+        payoff += pd.make_a_deal(grid[i,j] - 1, grid[n[0],n[1]] - 1)[0]
+
     return payoff
-    
+
 
 
 def imitate_single_individual(grid, pd):
-    """ select one individual  and compute the sum over the PD with its 
-    neighbors then compute the same for the neightbors and change to the 
+    """ select one individual  and compute the sum over the PD with its
+    neighbors then compute the same for the neightbors and change to the
     strategy of the best neighbor"""
     # select random individual
     (i, j) = (np.random.randint(0, len(grid)),
          np.random.randint(0, len(grid[0])))
-    
+
     # find a cell that actualy has a player...
     counter = 0
     while not grid[i,j] and counter < 30:
         (i, j) = (np.random.randint(0, len(grid)),
          np.random.randint(0, len(grid[0])))
         counter += 1
- 
+
     payoff = play_with_4neighbors(pd, grid, i, j)
-    
+
     # list of potential neighbors
     neighbors = get_neighbors(grid,i,j)
     # only consider neighbors that are actual players and not empty
@@ -137,24 +135,24 @@ def imitate_single_individual(grid, pd):
     # no neighbors.. just return?
     if not neighbors:
         return
-    
+
     # calculate the payoff of all the neighbors
     neighbors_payoff = []
     for n in neighbors:
         neighbors_payoff.append(play_with_4neighbors(pd, grid, n[0], n[1]))
-            
+
     # no good neighbors ? idk
     if not neighbors_payoff:
         return
-    
+
     best_neighbor = max(neighbors_payoff)
 
     if best_neighbor > payoff:
         better_neighbor = neighbors[neighbors_payoff.index(best_neighbor)]
         grid[i,j] = grid[better_neighbor[0], better_neighbor[1]]
-    
 
-    
+
+
 
 
 """
@@ -168,13 +166,13 @@ horizontal_cells, vertical_cells = width // cell_size, height // cell_size
 grid = init_grid(horizontal_cells, vertical_cells, cell_type=int)
 init_cell_states(grid)
 """
-    
-    
+
+
 def imitation():
     """
     main function that executes the whole simulation
     """
-    
+
     background_color = (0, 0, 0)
     # setup the matrix dimenision
     x_dim = 50
@@ -188,47 +186,29 @@ def imitation():
     init_cell_states(grid)
     # first rendering
     draw_update(screen, grid)
-    
+
     # simulation loop
     running = True
     while running:
-        # this loop makes the graphics run faster for a bigger range without 
+        # this loop makes the graphics run faster for a bigger range without
         # updating the greaphics
         for i in range(50):
             imitate_single_individual(grid, pd)
         #imitate_single_individual(grid, pd)
         draw_update(screen, grid)
-        
+
         # proper closing of the window....
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
                 pg.quit()
                 #exit()
-       
 
-         
+
+
 imitation()
-    
+
 
 
 #screen = setup_screen()
 #draw_update(screen, grid)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
