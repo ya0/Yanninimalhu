@@ -9,7 +9,7 @@ from RectangularGrid import RectangularGrid
 
 # sets up the screen (dimensions, title, background color)
 def setup_screen(screen_dimensions, background_colour):
-    """ some things for the graphics....
+    """ sets up graphics
     """
     pg.init()
     screen = pg.display.set_mode((screen_dimensions[1], screen_dimensions[0]))
@@ -18,36 +18,35 @@ def setup_screen(screen_dimensions, background_colour):
     pg.display.flip()
     return screen
 
-def init_grid(width, height, cell_type=bool ):
-    return RectangularGrid(height, width)
+def init_grid(width, height, cell_type=bool):
+    return RectangularGrid(width, height)
 
 def init_cell_states(grid):
-    """ the integer in the cell describes the strategy of that cell/actor.
-    0: empty cell
-    1: defect
-    2: cooperate
-
-    for the future: i think it is possible to save objects into numpy arrays
-    but we could also just reference different strategies by numbers. if we
-    want to distinguish between actors we need ID's or save an actual object.
+    """ initiates players in the grid
     """
-    for i in range(grid.width):
-        for j in range(grid.height):
+    p_cooperate = 0.25 # probability of initiating a cooperative player
+    p_defect = 0.25 # probability of initiating a defecting cell
+
+    for i in range(grid.height):
+        for j in range(grid.width):
             r = np.random.random()
-            if r > 0.5:
-                grid.grid[i][j] = None
-            elif r > 0.25:
+            if r < p_cooperate:
                 grid.grid[i][j] = Player(Strategy.cooperate, i, j)
-            else:
+            elif r < p_cooperate + p_defect:
                 grid.grid[i][j] = Player(Strategy.defect, i, j)
+            else:
+                grid.grid[i][j] = None
 
-# draws a rectangle for each cell that is alive
+
 def draw_update(screen, grid):
-    """ updates the display according the the grid (numpy matrix) this is a very
-    static function and not future proof at all
+    """ updates the display according the the grid
     """
-    for i in range(grid.width):
-        for j in range(grid.height):
+    green = (0, 255, 0)
+    red = (255, 0, 0)
+    black = (0, 0, 0)
+
+    for i in range(grid.height):
+        for j in range(grid.width):
 
             # define top-left pixel of cell
             tup = (i * 16, j * 16, 16, 16)
@@ -56,124 +55,152 @@ def draw_update(screen, grid):
             player = grid.grid[i][j]
             if player:
                 if player.strategy == Strategy.cooperate:
-                    pg.draw.rect(screen, (0, 255, 0), tup, 0)
+                    pg.draw.rect(screen, green, tup, 0)
                 elif player.strategy == Strategy.defect:
-                    pg.draw.rect(screen, (255, 0, 0), tup, 0)
+                    pg.draw.rect(screen, red, tup, 0)
                 else:
-                    pg.draw.rect(screen, (0, 0, 0), tup, 0)
+                    pg.draw.rect(screen, black, tup, 0)
             else:
-                pg.draw.rect(screen, (0, 0, 0), tup, 0)
+                pg.draw.rect(screen, black, tup, 0)
 
     pg.display.flip()
 
-def get_neighbors(grid, i, j):
-    """ returns a list of neighbors of a player at grid coordinates (i,j)
+def get_neighboring_cell_coordinates(grid, i, j):
+    """ returns a list of coordinates of neighboring cells
     """
-    neighbors = []
-    possible_neighbor_positions = [[i+1, j], [i-1, j], [i, j+1], [i, j-1]]
+    # radius of the Moore neighborhood
+    radius = 2
 
-    for pnp in possible_neighbor_positions:
-        # ignore cases when the possible neighbor index is out of bounds
-        try:
-            grid.grid[pnp[0], pnp[1]]
-            # check whether neighboring cell contains a player
-            if grid.grid[pnp[0], pnp[1]]:
-                neighbors.append(n)
-        except:
+    coordinates = []
+
+    # obtain Moore neighborhood algorithmically
+    for m in range(grid.height):
+        for n in range(grid.width):
+            if m == i and n == j:
+                continue
+            elif abs(m - i) <= radius and abs(n - j) <= radius:
+                coordinates.append((m, n))
+
+    return coordinates
+
+def play_with_neighbors(player, grid, game):
+    """ makes a player play a game with its four neighbors and update its total
+    payoff
+    """
+    neighbor_positions = get_neighboring_cell_coordinates(grid, player.i, player.j)
+
+    player.money = 0
+    for neighbor_position in neighbor_positions:
+        neighbor = grid.grid[neighbor_position[0]][neighbor_position[1]]
+        if neighbor != None:
+            player.money += game.play(player, neighbor)[0]
+
+def move(grid, player, i_new, j_new):
+    """ moves a player from its current position on the grid to the position
+    defined by the coordinates (i_new, y_new)
+    """
+    # check that the new position is not out of bounds
+    if i_new < 0 or i_new >= grid.height:
+        return
+    if j_new < 0 or j_new >= grid.width:
+        return
+
+    # move player to new position if empty
+    occupied = grid.grid[i_new][j_new] != None
+    if not occupied:
+        i_old = player.i
+        j_old = player.j
+
+        grid.grid[i_new][j_new] = player
+        player.i = i_new
+        player.j = j_new
+
+        grid.grid[i_old][j_old] = None
+
+def update_player(grid, game):
+    """ updates a player based on the imitation and migration procedures
+    described in the Helbing paper
+    """
+    # choose a player at random
+    players = []
+    for m in range(grid.height):
+        for n in range(grid.width):
+            if grid.grid[m][n] != None:
+                players.append(grid.grid[m][n])
+    player = random.choice(players)
+    current_position = (player.i, player.j)
+
+    # dictionary to record most favorable position in neighborhood
+    migration_score = {}
+
+    # calculate payoff in current position
+    play_with_neighbors(player, grid, game)
+    migration_score[current_position] = player.money
+
+    # simulate payoffs in neighbouring empty positions
+    neighbor_positions = get_neighboring_cell_coordinates(grid, player.i, player.j)
+    for (k, l) in neighbor_positions:
+        neighbor = grid.grid[k][l]
+        if neighbor != None:
             continue
+        else:
+            move(grid, player, k, l)
+            play_with_neighbors(player, grid, game)
+            migration_score[(k, l)] = player.money
 
-    return neighbors
+    # migrate to most favorable position
+    most_favorable_position = max(migration_score, key=migration_score.get)
+    move(grid, player, most_favorable_position[0], most_favorable_position[1])
 
-def play_with_4_neighbors(grid, i, j, game):
-    """ (i,j) plays the prisoners dilemma pd with neighbors in the grid
-    return sum off all the games
-    """
-    neighbors = get_neighbors(grid, i, j)
+    # introduce noise
+    rand1 = random.random()
+    r = 0.05
 
-    player = grid.grid[i][j]
-    payoff = 0
-    for neighbor in neighbors:
-        payoff += game.Play(player, neighbor)[0]
+    if rand1 < r:
+        # implement random strategy reset
 
-    return payoff
+        rand2 = random.random()
+        q = 0.05
+        if rand2 < q:
+            player.strategy = Strategy.cooperate
+        else:
+            player.strategy = Strategy.defect
 
-def move(grid, player, x_new, y_new):
-    try:
-        # move player to new position if empty
-        occupied = grid.grid[x_new][y_new] != None
-        print(occupied)
-        if not occupied:
-            x_old = player.x_pos
-            y_old = player.y_pos
+    else:
+        # imitate most successful neighbor
 
-            grid.grid[x_new][y_new] = player
-            player.x_pos = x_new
-            player.y_pos = y_new
+        play_with_neighbors(player, grid, game)
+        best_payoff = player.money
+        best_strategy = player.strategy
 
-            grid.grid[x_old][y_old] = None
+        # find most successful neighbor
+        neighbor_positions = get_neighboring_cell_coordinates(grid, player.i, player.j)
+        for (k, l) in neighbor_positions:
+            neighbor = grid.grid[k][l]
+            if neighbor != None:
+                play_with_neighbors(neighbor, grid, game)
+                if neighbor.money > best_payoff:
+                    best_payoff = neighbor.money
+                    best_strategy = neighbor.strategy
 
-    except:
-        return
-
-def update_player(player, grid, game):
-    move(grid, player, player.x_pos + 1, player.y_pos + 1)
-    # payoff = play_with_4_neighbors(grid, player.x_pos, player.y_pos, game)
-
-def imitate_single_individual(grid, pd):
-    """ select one individual  and compute the sum over the PD with its
-    neighbors then compute the same for the neighbors and change to the
-    strategy of the best neighbor"""
-    # select random individual
-    (i, j) = (np.random.randint(0, grid.width),
-         np.random.randint(0, grid.height))
-
-    # find a cell that actualy has a player
-    counter = 0
-    while not grid.grid[i][j].Active() and counter < 30:
-        (i, j) = (np.random.randint(0, grid.width),
-         np.random.randint(0, grid.height))
-        counter += 1
-
-    payoff = play_with_4neighbors(pd, grid, i, j)
-
-    # list of potential neighbors
-    neighbors = get_neighbors(grid,i,j)
-    # only consider neighbors that are actual players and not empty
-    neighbors = [n for n in neighbors if grid[n[0],n[1]]]
-
-    # no neighbors.. just return?
-    if not neighbors:
-        return
-
-    # calculate the payoff of all the neighbors
-    neighbors_payoff = []
-    for n in neighbors:
-        neighbors_payoff.append(play_with_4neighbors(pd, grid, n[0], n[1]))
-
-    # no good neighbors ? idk
-    if not neighbors_payoff:
-        return
-
-    best_neighbor = max(neighbors_payoff)
-
-    if best_neighbor > payoff:
-        better_neighbor = neighbors[neighbors_payoff.index(best_neighbor)]
-        grid[i,j] = grid[better_neighbor[0], better_neighbor[1]]
+        player.strategy = best_strategy
 
 
 def migration(game):
+    """ runs a simulation of agents playing a game
+    """
 
     # grid setup
-    x_dim = 30
-    y_dim = 30
-    grid = init_grid(y_dim, x_dim)
+    grid_width = 30
+    grid_height = 40
+    grid = init_grid(grid_width, grid_height)
     init_cell_states(grid)
 
     # screen setup
     background_color = (0, 0, 0)
     cell_height = 16
     cell_width = 16
-    screen_dimensions = (cell_width * x_dim, cell_height * y_dim)
+    screen_dimensions = (cell_width * grid_width, cell_height * grid_height)
     screen = setup_screen(screen_dimensions, background_color)
 
     # first rendering
@@ -183,25 +210,17 @@ def migration(game):
     running = True
     counter = 0
     while running:
-        if counter >= 10000:
+
+        # counter to prevent infinite loop
+        counter += 1
+        if counter >= 100000:
             running = False
 
         if running:
-            # choose a player at random
-            players = []
-            for i in range(grid.width):
-                for j in range(grid.height):
-                    if grid.grid[i][j]:
-                        players.append(grid.grid[i][j])
-            if players:
-                player = random.choice(players)
-            else:
-                running = False
-
-            # update player strategy and position
-            update_player(player, grid, game)
-
-        draw_update(screen, grid)
+            # group updates together to speed up visualization
+            for i in range(50):
+                update_player(grid, game)
+            draw_update(screen, grid)
 
         # proper closing of the window
         for event in pg.event.get():
@@ -210,5 +229,5 @@ def migration(game):
                 pg.quit()
 
 if __name__ == "__main__":
-    game = PrisonersDilemma(4, 3, 2, 1)
+    game = PrisonersDilemma(1.3, 1 ,0 , 0.1)
     migration(game)

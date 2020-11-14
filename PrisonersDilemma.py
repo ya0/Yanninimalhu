@@ -17,8 +17,8 @@ class Strategy(Enum):
 class Player():
     def __init__(self, strategy, x, y):
         self.strategy = strategy
-        self.x_pos = x
-        self.y_pos = y
+        self.i = x  # vertical position
+        self.j = y  # horizontal position
         self.money = 0
 
 class PrisonersDilemma():
