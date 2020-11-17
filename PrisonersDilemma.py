@@ -24,7 +24,7 @@ class Player():
 class PrisonersDilemma():
     def __init__(self, T, R, P, S):
         """ initialise the prisoners dilemma with:
-            T: temptasion
+            T: temptacion
             R: reward
             S: sucker's payoff
             P: punishment
