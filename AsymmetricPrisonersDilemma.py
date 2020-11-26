@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 23 13:19:59 2020
 
-@author: amman
-"""
+###########################################
+# redundant file atm
+###########################################
+
+
 
 """
 simulate the pirsoners dilemma

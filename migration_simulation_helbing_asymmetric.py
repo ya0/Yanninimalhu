@@ -4,7 +4,7 @@ import itertools
 import random
 import time
 
-from AsymmetricPrisonersDilemma import AsPrisonersDilemma, Player, Strategy
+from PrisonersDilemma import AsPrisonersDilemma, Player, Strategy
 from RectangularGrid import RectangularGrid
 
 
@@ -219,7 +219,7 @@ def migration(game):
 
         if running:
             # group updates together to speed up visualization
-            for i in range(50):
+            for i in range(70):
                 update_player(grid, game)
             draw_update(screen, grid)
 
