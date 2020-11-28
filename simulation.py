@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-""" code for the simulation setup """
 import time
 from RectangularGrid import RectangularGrid
 from PrisonersDilemma import PrisonersDilemma
@@ -33,6 +32,21 @@ def simulate(game, grid, time_max = 0, iteration_max = 0):
         # update conditions if needed
         iteration = iteration + 1 if iteration_max else 0
         t = time.time() if time_max else 0
+
+""" code for the simulation setup
+we can define the prisoners dilemma
+    PrisonersDilemma(1.3, 1 ,0 , 0.1)
+
+and the rectangular grid
+    
+    RectangularGrid(width,
+                    height,
+                    game = PrisonersDilemma(1.3, 1 ,0 , 0.1),
+                    noise = 0.05,
+                    radius = 2,
+                    p_cooperate = 0.25,
+                    p_defect = 0.25)
+"""
     
 PrisonersDilemma(1.3, 1 ,0 , 0.1)
 grid = RectangularGrid(30, 40, game = game)
