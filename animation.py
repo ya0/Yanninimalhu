@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import pygame as pg
+from PrisonersDilemma import PrisonersDilemma, Strategy
+from RectangularGrid import RectangularGrid
 
 """
 for the graphical representation of the simulations
@@ -44,8 +46,8 @@ def draw_update(screen, grid):
 
     pg.display.flip()
     
-    
-def 2d_animation(width, height, game = False, grid = False):
+
+def animation_2d(width, height, game = False, grid = False):
     """
     - width, height of animation grid 
     
@@ -87,7 +89,7 @@ def 2d_animation(width, height, game = False, grid = False):
 
         # group updates together to speed up visualization
         for i in range(50):
-            grid.update_player(grid, game)
+            grid.update_player(game)
         draw_update(screen, grid)
 
         # proper closing of the window
@@ -96,55 +98,14 @@ def 2d_animation(width, height, game = False, grid = False):
                 running = False
                 pg.quit()
                 
+
+                
 if __name__ == "__main__":
-    2d_animation(30,40)
+    game = PrisonersDilemma(1.5, 1 ,0 , 0.1)
+    animation_2d(30, 40, game)
     
     
-def migration(game):
-    """ runs a simulation of agents playing a game
-    """
 
-    # grid setup
-    grid_width = 30
-    grid_height = 40
-    grid = init_grid(grid_width, grid_height)
-    init_cell_states(grid)
-
-    # screen setup
-    background_color = (0, 0, 0)
-    cell_height = 16
-    cell_width = 16
-    screen_dimensions = (cell_width * grid_width, cell_height * grid_height)
-    screen = setup_screen(screen_dimensions, background_color)
-
-    # first rendering
-    draw_update(screen, grid)
-
-    # simulation loop
-    running = True
-    counter = 0
-    while running:
-
-        # counter to prevent infinite loop
-        counter += 1
-        if counter >= 100000:
-            running = False
-
-        if running:
-            # group updates together to speed up visualization
-            for i in range(50):
-                update_player(grid, game)
-            draw_update(screen, grid)
-
-        # proper closing of the window
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                running = False
-                pg.quit()
-
-if __name__ == "__main__":
-    game = PrisonersDilemma(1.3, 1 ,0 , 0.1)
-    migration(game)
     
     
 """
