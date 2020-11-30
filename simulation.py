@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from RectangularGrid import RectangularGrid
-from PrisonersDilemma import PrisonersDilemma
+from PrisonersDilemma import AsPrisonersDilemma, PrisonersDilemma
 
 
 def simulate(game, grid, time_max = 0, iteration_max = 0):
@@ -48,8 +48,8 @@ and the rectangular grid
                     p_defect = 0.25)
 """
     
-PrisonersDilemma(1.3, 1 ,0 , 0.1)
-grid = RectangularGrid(30, 40, game = game)
+game = AsPrisonersDilemma(1.2, 1 ,0 , 0.1)
+grid = RectangularGrid(30, 40, game = game, p_needs = 0.25)
 from animation import animation_2d
 
 animation_2d(10,10, game, grid)

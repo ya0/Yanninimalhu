@@ -9,7 +9,7 @@ class RectangularGrid():
     we use this class to simulate the 2d grid
     """
     
-    def __init__(self, width, height, game = PrisonersDilemma(1.3, 1 ,0 , 0.1), noise = 0.05, radius = 2, p_cooperate = 0.25, p_defect = 0.25):
+    def __init__(self, width, height, game = PrisonersDilemma(1.3, 1 ,0 , 0.1), noise = 0.05, radius = 2, p_needs = False, p_cooperate = 0.25, p_defect = 0.25):
         """
         - width, heith of grid
         - game is a PrisonersDilemma Object which rules how the agents interact
@@ -24,15 +24,26 @@ class RectangularGrid():
         self.radius = radius
         
         # init players based on percentages given to the RectangularGrid object
-        for i in range(self.height):
-            for j in range(self.width):
-                r = np.random.random()
-                if r < p_cooperate:
-                    self.grid[i][j] = Player(Strategy.cooperate, i, j)
-                elif r < p_cooperate + p_defect:
-                    self.grid[i][j] = Player(Strategy.defect, i, j)
-                else:
-                    self.grid[i][j] = None
+        if p_needs:
+            for i in range(self.height):
+                for j in range(self.width):
+                    r = np.random.random()
+                    if r < p_cooperate:
+                        self.grid[i][j] = Player(Strategy.cooperate, i, j, p_needs)
+                    elif r < p_cooperate + p_defect:
+                        self.grid[i][j] = Player(Strategy.defect, i, j, p_needs)
+                    else:
+                        self.grid[i][j] = None
+        else:
+            for i in range(self.height):
+                for j in range(self.width):
+                    r = np.random.random()
+                    if r < p_cooperate:
+                        self.grid[i][j] = Player(Strategy.cooperate, i, j)
+                    elif r < p_cooperate + p_defect:
+                        self.grid[i][j] = Player(Strategy.defect, i, j)
+                    else:
+                        self.grid[i][j] = None
                     
     def get_playercount_by_stretegy(self, strat):
         """ returns how many agents on the grid follow a given stratgy"""
@@ -57,6 +68,24 @@ class RectangularGrid():
                 if m == i and n == j:
                     continue
                 elif abs(m - i) <= self.radius and abs(n - j) <= self.radius:
+                    coordinates.append((m, n))
+    
+        return coordinates
+    
+    def get_neighboring_cell_coordinates(grid, i, j):
+        """ returns a list of coordinates of neighboring cells
+        """
+        # radius of the Moore neighborhood
+        radius = 2
+    
+        coordinates = []
+    
+        # obtain Moore neighborhood algorithmically
+        for m in range(grid.height):
+            for n in range(grid.width):
+                if m == i and n == j:
+                    continue
+                elif abs(m - i) <= radius and abs(n - j) <= radius:
                     coordinates.append((m, n))
     
         return coordinates

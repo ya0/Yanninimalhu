@@ -61,7 +61,7 @@ def animation_2d(width, height, game = False, grid = False):
     if not game:
         game = PrisonersDilemma(1.3, 1 ,0 , 0.1)
     if not grid:
-        grid = RectangularGrid(width, height, game)
+        grid = RectangularGrid(width, height, game, p_needs = 0.25)
         
     grid_width = grid.width
     grid_height = grid.height
@@ -101,7 +101,7 @@ def animation_2d(width, height, game = False, grid = False):
 
                 
 if __name__ == "__main__":
-    game = PrisonersDilemma(1.5, 1 ,0 , 0.1)
+    game = PrisonersDilemma(1.3, 1 ,0 , 0.1)
     animation_2d(30, 40, game)
     
     

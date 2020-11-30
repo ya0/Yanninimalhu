@@ -76,6 +76,7 @@ class PrisonersDilemma():
             elif p2.strategy == Strategy.defect:
                 return (self.P, self.P)
         else:
+            print("playerone: " ,p1, " and player2: " ,p2)
             print("Player strategies not well defined!")
             exit()
             
