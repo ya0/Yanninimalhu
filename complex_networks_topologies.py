@@ -53,6 +53,7 @@ def imitate_single_individual(graph, pd,strategy):
     """ select one individual  and compute the sum over the PD with its 
     neighbors then compute the same for the neightbors and change to the 
     strategy of the best neighbor"""
+    strategy
     # select random individual
     i = np.random.randint(0, N)
     # find a cell that actualy has a player...
@@ -118,45 +119,128 @@ horizontal_cells, vertical_cells = width // cell_size, height // cell_size
 grid = init_grid(horizontal_cells, vertical_cells, cell_type=int)
 init_cell_states(grid)
 """
-def imitation(graph,strategy):
+def imitation(graph,strategy,iterations):
     """
     main function that executes the whole simulation
     """
-    imitate_single_individual(graph, pd,  strategy)
+
+    for i in range(0,iterations):
+        imitate_single_individual(graph, pd,  strategy)
+        
     color_map = []
     for node in graph:
         if strategy[node]==1:
             color_map.append('red')
         elif strategy[node]==2:
             color_map.append('green')
-
+        
     nx.draw(graph, node_color=color_map, with_labels=True, pos=pos)
     
-fig = plt.figure()
-ax = fig.add_subplot(111)
-N=200 #number of nodes
-k=10 #mean degree 
-p=0.09 #probability of rewiring  
-m=8 #number of edges to attach from a new node to existing nodes           
+def hubs(graph):
+    "Calculates the number of hubs"
+    degrees=np.zeros(N)
+    for i in range(N):
+        degrees[i]=graph.degree[i]    
+        d_average=np.mean(degrees)
+
+    hubs_array=np.argwhere(degrees > d_average*1.4)
+    return hubs_array
+
+def equilibrium(graph,strategy_past,strategy,n_eq):
+    "Calculates when the global strategy simulation has gone into equilibrium"
+    equil="False"
+    v= strategy_past == strategy
+    if v.all():
+        n_eq+=1
+    
+    if n_eq>=3:
+        equil="True"
+    return n_eq, equil
+    
+    
+def multiple(iterations,number_graphs,number_cases):
+    """
+    simulate multiple simulations and gives the ratio factor in the end
+    """
+    k_array=np.linspace(2,150,number_cases)
+    coop_ratio_array=np.zeros(number_graphs) #calculates how many cooperators in the same diagram
+    n_coop=np.zeros(number_cases) #calculates how many times for each case there are significant cooperators
+    for z in range(0,number_cases):
+        ka=int(k_array[z])
+        coop_ratio_array=np.zeros(number_graphs)
+        for i in range(0,number_graphs):
+            graph = nx.watts_strogatz_graph(N, ka, p)
+            tmp_G= graph.copy()
+            init_cell_states(tmp_G)
+            stra=strategy.copy()
+            n_eq= 0
+            while n_eq!=3:
+                strategy_past=stra.copy()
+                for j in range(0,iterations):
+                    imitate_single_individual(tmp_G, pd,  stra)
+                n_eq, equil = equilibrium(tmp_G,strategy_past,stra,n_eq) #calculates how many times the strategy has not changed
+            coop_ratio_array[i]=(stra == 2).sum()
+            if coop_ratio_array[i]>=10:
+                n_coop[z]+=1
+            print("number of cooperators per iter.= {}, \n same graph iterations= {}, \n n_coop[{}]= {},\n  average degree k={} \n " .format(coop_ratio_array, i, z, n_coop[z], k_array[z]))
+
+    return n_coop
+
+def plot_single(graph,strategy,iterations,tmp_G):
+    try:
+        n_eq=0
+        init_cell_states(tmp_G)
+        imitation(tmp_G,strategy,2)
+        pylab.draw()
+        pause(0.0001)
+        pylab.clf()
+        i=0
+        while True:
+            strategy_past=strategy.copy()
+            imitation(tmp_G,strategy,iterations)
+            n_eq, equil = equilibrium(graph,strategy_past,strategy,n_eq) #calculates how many times the strategy has not changed
+            print(equil)
+            pylab.draw()
+            pause(0.0001)
+            pylab.clf()
+            if equil=="True":
+                print(i)
+            else:
+                i+=1
+    except KeyboardInterrupt:
+        plt.close() 
+    
+        pass
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    #plt.show()        
+            
+    
+    
+N = 200 #number of nodes
+k = 4 #mean degree 
+p = 0.8 #probability of rewiring  
+m = 8 #number of edges to attach from a new node to existing nodes     
+iterations = 50 #number of iterations between every time step at the final plotting     
+number_graphs = 10 #numbers to simulate each diagram case
+number_cases =  10 #number of different graphs for multiple simulations
 graph = nx.watts_strogatz_graph(N, k, p)
 #graph= nx.barabasi_albert_graph(N,m)
 pos = nx.spring_layout(graph)
 tmp_G = graph.copy()
 
+hubs_array=hubs(tmp_G)
 strategy= init_cell_states(tmp_G)
-#ani = animation.FuncAnimation(plt.gcf(), imitation, interval=1000,fargs=(graph))
-try:
-    while True:
-        imitation(tmp_G,strategy)
-        pylab.draw()
-        pause(0.05)
-        pylab.clf()
 
-except KeyboardInterrupt:
-    pass
+print(hubs_array)
 
+
+#n_coop=multiple(iterations,number_graphs,number_cases)
+# #x = np.linspace(0,0.6,number_cases)
+#x=np.linspace(2,150,number_cases)
+#plt.plot(x, n_coop)
+
+plot_single(graph,strategy,iterations,tmp_G)
 
 plt.show()
-
-#screen = setup_screen()
-#draw_update(screen, grid)
