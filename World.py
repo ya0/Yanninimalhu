@@ -121,24 +121,36 @@ class World():
         """ performs a migration step for a player according to the migration
         process described in the Helbing paper
         """
+        current_cell = player.cell
+
         # dictionary to record most favorable cell in neighborhood
-        migration_score = {}
+        migration_payoff = {}
 
         # calculate payoff in current cell
         current_cell = player.cell
         self.play_with_neighbors(player)
-        migration_score[player.cell] = player.payoff
+        migration_payoff[player.cell] = player.payoff
+        best_payoff = player.payoff
 
-        # simulate payoffs in neighboring empty cells
+        # simulate payoffs in neighboring empty cells, updating best payoff
         empty_cells = self.board.get_moore_neighboring_empty_cells(player.cell, self.moore_neighborhood_range)
         for empty_cell in empty_cells:
             self.move_player(player, empty_cell)
             self.play_with_neighbors(player)
-            migration_score[player.cell] = player.payoff
 
-        # migrate to most favorable cell
-        most_favorable_cell = max(migration_score, key=migration_score.get)
-        self.move_player(player, most_favorable_cell)
+            migration_payoff[player.cell] = player.payoff
+            if player.payoff > best_payoff:
+                best_payoff = player.payoff
+
+        # migrate to most closest favorable cell
+        best_cells = []
+        for cell in migration_payoff:
+            if migration_payoff[cell] == best_payoff:
+                best_cells.append(cell)
+
+        random.shuffle(best_cells)
+        closest_best_cell = min(best_cells, key=lambda cell: self.board.get_distance_between(cell, current_cell))
+        self.move_player(player, closest_best_cell)
 
 
     def imitation_update(self, player):

@@ -30,7 +30,6 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, show_anim
             stats.record_stats(world, iteration)
             # stop simulation based on statistics
             if stats.end_simulation(world, iteration):
-                print("Hello")
                 break
 
         # loop management
