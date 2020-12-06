@@ -3,17 +3,22 @@
 import abc, random, math, pygame as pg
 from Game import Player, Strategy
 
+"""
+An abstract base class for the board, the topological environmental in
+which the players interact
+"""
 class Board(abc.ABC):
     @abc.abstractmethod
-    def set_cell(self, cell, data):
+    def assign_player_to_cell(self, player, cell):
         pass
 
     @abc.abstractmethod
-    def get_cell(self, cell):
+    def get_player_from_cell(self, cell):
         pass
 
     @abc.abstractmethod
     def occupied(self, cell):
+        """ determine whether a cell is occupied by a player """
         pass
 
     @abc.abstractmethod
@@ -21,23 +26,27 @@ class Board(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_neumann_neighboring_players(self, cell):
+    def get_players_in_play_neighborhood(self, cell):
+        """ gets the players which a player in a cell would be able to play
+        with
+        """
         pass
 
     @abc.abstractmethod
-    def get_moore_neighboring_players(self, cell, radius):
-        pass
-
-    @abc.abstractmethod
-    def get_moore_neighboring_empty_cells(self, cell, radius):
+    def get_empty_cells_in_migration_neighboorhood(self, cell, radius):
+        """ gets the empty cells which a player in a cell would be able to
+        migrate to
+        """
         pass
 
     @abc.abstractmethod
     def random_cell_sequence(self):
+        """ gets a list of all cells in random order """
         pass
 
     @abc.abstractmethod
     def draw(self):
+        """ draws the board on screen """
         pass
 
 
@@ -59,12 +68,11 @@ class RectangularGrid(Board):
         pg.display.set_caption("Strategy Evolution Simulation")
         self.screen.fill(background_color)
 
-    # TODO: rename to SetPlayerAtCell or something
-    def set_cell(self, cell, data):
-        self.grid[cell[0]][cell[1]] = data
+    def assign_player_to_cell(self, player, cell):
+        self.grid[cell[0]][cell[1]] = player
 
 
-    def get_cell(self, cell):
+    def get_player_from_cell(self, cell):
         return self.grid[cell[0]][cell[1]]
 
 
@@ -78,50 +86,31 @@ class RectangularGrid(Board):
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
-    def get_neumann_neighboring_players(self, cell):
+    def get_players_in_play_neighborhood(self, cell):
+        """ gets the players in the Moore neighborhood of a cell
+        """
         i, j = cell
         players = []
 
         if i > 0:
             if self.occupied((i-1, j)):
-                players.append(self.get_cell((i-1, j)))
+                players.append(self.get_player_from_cell((i-1, j)))
         if i < self.height - 1:
             if self.occupied((i+1, j)):
-                players.append(self.get_cell((i+1, j)))
+                players.append(self.get_player_from_cell((i+1, j)))
         if j > 0:
             if self.occupied((i, j-1)):
-                players.append(self.get_cell((i, j-1)))
+                players.append(self.get_player_from_cell((i, j-1)))
         if j < self.width - 1:
             if self.occupied((i, j+1)):
-                players.append(self.get_cell((i, j+1)))
+                players.append(self.get_player_from_cell((i, j+1)))
 
         return players
 
 
-    def get_moore_neighboring_players(self, cell, r):
-        i, j = cell
-        players = []
-
-        # find empty cells with Chebyshev distance from the cell <= r
-        for m in range(i - r, i + r + 1):
-            for n in range(j - r, j + r + 1):
-                # ignore out-of-bounds cells
-                if (m < 0 or m >= self.height or n < 0 or n >= self.width):
-                    continue
-
-                # ignore the cell itself
-                if m == i and n == j:
-                    continue
-
-                if abs(m - i) <= r and abs(n - j) <= r:
-                    player = self.grid[m][n]
-                    if player != None:
-                        players.append(player)
-
-        return players
-
-
-    def get_moore_neighboring_empty_cells(self, cell, r):
+    def get_empty_cells_in_migration_neighboorhood(self, cell, r):
+        """ gets the empty cells in the Neumann neighborhood of the cell
+        """
         i, j = cell
         neighboring_empty_cells = []
 
@@ -142,7 +131,6 @@ class RectangularGrid(Board):
         return neighboring_empty_cells
 
 
-    # TODO: Potential speed-up by simply implementing a get_random_cell() function
     def random_cell_sequence(self):
 
         random_cell_sequence = []

@@ -2,22 +2,22 @@ import random
 from Game import Strategy
 from Board import RectangularGrid
 
-# delete later
-import time
-
+"""
+The world in which the simulation takes place
+"""
 class World():
-    def __init__(self, game, board, players, r = 0, q = 0, noise1 = False, noise2 = False, imitation = False, migration = False, moore_neighborhood_range = 0):
+    def __init__(self, game, board, players, r = 0, q = 0, noise1 = False, noise2 = False, imitation = False, migration = False, M = 0):
         """
-        - game: the game played between two players during an interaction
-        - board: the topology of the world
+        - game: game played between two players during an interaction
+        - board: topology of the world
         - players: a list of players in the world
-        - r: the probability of a player randomly resetting its strategy
-        - q: the probability that a player resets its strategy to cooperate
+        - r: probability that a player randomly resets its strategy
+        - q: conditional probability that a player resets to cooperate
         - noise1: a boolean indicating whether Noise 1 is present
         - noise2: a boolean indicating whether Noise 2 is present
         - imitation: a boolean indicating whether players perform imitation
-        - migration: a boolean indicating whether
-        - moore_neighborhood_range: the range of the Moore neighborhood around each cell
+        - migration: a boolean indicating whether players perform migration
+        - M: the range of the Moore neighborhood around each cell
         """
         self.game = game
         self.board = board
@@ -29,20 +29,19 @@ class World():
         self.noise2 = noise2
         self.imitation = imitation
         self.migration = migration
-        self.moore_neighborhood_range = moore_neighborhood_range
+        self.M = M
 
         # randomly insert players in board cells
-        random.shuffle(players)
         random_cell_sequence = board.random_cell_sequence()
-
         if len(players) > len(random_cell_sequence):
-            print("Error! Number of players exceeds the number of cells on the board")
-            exit()
+            print("Error! Number of players exceeds the number of cells")
+            quit()
 
-        for i in range(len(players)):
-            players[i].cell = random_cell_sequence[i]
-            self.board.set_cell(random_cell_sequence[i], players[i])
-            self.board.get_cell(random_cell_sequence[i])
+        random.shuffle(self.players)
+        for i in range(len(self.players)):
+            self.players[i].cell = random_cell_sequence[i]
+            self.board.assign_player_to_cell(self.players[i], \
+                                            random_cell_sequence[i])
 
 
     def round(self):
@@ -76,18 +75,18 @@ class World():
         """ moves a player from its current cell on the board to the new cell
         on the board (only if the new cell is unoccupied)
         """
-        occupied = self.board.get_cell(new_cell) != None
+        occupied = self.board.get_player_from_cell(new_cell) != None
         if not occupied:
-            self.board.set_cell(player.cell, None)
-            self.board.set_cell(new_cell, player)
+            self.board.assign_player_to_cell(None, player.cell)
+            self.board.assign_player_to_cell(player, new_cell)
             player.cell = new_cell
 
 
     def play_with_neighbors(self, player):
-        """ makes a player play a game with its four neighbors and update its
+        """ makes a player play a game with its four neighbors and record its
         total payoff
         """
-        neighbors = self.board.get_neumann_neighboring_players(player.cell)
+        neighbors = self.board.get_players_in_play_neighborhood(player.cell)
 
         player.payoff = 0
         for neighbor in neighbors:
@@ -106,7 +105,7 @@ class World():
 
 
     def noise2_update(self, player):
-        """ randomizes the location of the player according to the Noise 1
+        """ randomizes the location of the player according to the Noise 2
         process described in the Helbing paper
         """
         random_cell_sequence = self.board.random_cell_sequence()
@@ -132,8 +131,9 @@ class World():
         migration_payoff[player.cell] = player.payoff
         best_payoff = player.payoff
 
-        # simulate payoffs in neighboring empty cells, updating best payoff
-        empty_cells = self.board.get_moore_neighboring_empty_cells(player.cell, self.moore_neighborhood_range)
+        # simulate payoffs in neighboring empty cells
+        empty_cells = \
+            self.board.get_empty_cells_in_migration_neighboorhood(player.cell, self.M)
         for empty_cell in empty_cells:
             self.move_player(player, empty_cell)
             self.play_with_neighbors(player)
@@ -160,7 +160,7 @@ class World():
         most_successful_neighbor = player
         greatest_payoff = player.payoff
 
-        neighbors = self.board.get_neumann_neighboring_players(player.cell)
+        neighbors = self.board.get_players_in_play_neighborhood(player.cell)
         for neighbor in neighbors:
             if neighbor.payoff > greatest_payoff:
                 greatest_payoff = neighbor.payoff

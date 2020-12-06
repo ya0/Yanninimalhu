@@ -5,17 +5,14 @@ from Game import PrisonersDilemma, AsymmetricPrisonersDilemma, Player, \
     PrisonersDilemmaPlayer, AsymmetricPrisonersDilemmaPlayer, Strategy
 from SimulationStatistics import StrategyFractionsTimeSeries
 
-def simulate(world, stats=None, time_max = 30, iteration_max = 100000, show_animation = False):
-    """ simulates the evolution of strategies in the world
-    N.B. animation only works with grid topology at the moment
+def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
+            show_animation = False):
+    """ simulates the evolution of strategies in the world, allowing for
+    visualization and the recording of statistics
     """
-
-    # TODO: Implement the animation procedure in the Board class
-    # TODO: Update to allow network animation animation setup
     if show_animation:
         world.board.draw()
 
-    # loop simulation
     t = time.time()
     time_max = t + time_max
     iteration = 0
@@ -32,7 +29,7 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, show_anim
             if stats.end_simulation(world, iteration):
                 break
 
-        # loop management
+        # update loop variables
         iteration += 1
         t = time.time()
 
@@ -40,6 +37,7 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, show_anim
         stats.print_results()
 
 if __name__ == "__main__":
+    """ Adjust simulation parameters here """
 
     # define the game played between two players during an interaction
     # choose a game type from Game.py
@@ -55,12 +53,11 @@ if __name__ == "__main__":
     grid_width = 50
     board = RectangularGrid(grid_height, grid_width)
 
-    # player parameters
+    # define the players in the world
+    # choose a player type from Game.py
     num_players = grid_height * grid_width // 2
     p_cooperation = 0.5
 
-    # define the players in the world
-    # choose a player type from Game.py
     players = []
     for i in range(num_players):
         rand = random.random()
@@ -70,23 +67,25 @@ if __name__ == "__main__":
             players.append(PrisonersDilemmaPlayer(Strategy.defect))
 
     # define player update parameters
-    r = 0.05
-    q = 0.05
-    noise1 = False
-    noise2 = False
-    imitation = False
-    migration = False
-    # TODO: rename this to 'M' to match the paper
-    moore_neighborhood_range = 5
+    r = 0.05 # probability that a player randomly resets its strategy
+    q = 0.05 # conditional probability that a player resets to cooperate
+    noise1 = False # a boolean indicating whether Noise 1 is present
+    noise2 = False # a boolean indicating whether Noise 2 is present
+    imitation = False # a boolean indicating whether players perform imitation
+    migration = False # a boolean indicating whether players perform migration
+    M = 5 # the range of the Moore neighborhood around each cell
 
     # simulation parameters
     time_max = 10
     iteration_max = 1000
     show_animation = True
 
-    # statistics to record in the simulation
+    # define the statistics to record in the simulation
+    # choose a simulations type from SimulationsStatistics.py
     stats = StrategyFractionsTimeSeries()
 
-    # create world to simulate evolution of strategies
-    world = World(game, board, players, r, q, noise1, noise2, imitation, migration, moore_neighborhood_range)
+    # define the world to simulate evolution of strategies
+    world = World(game, board, players, r, q, noise1, noise2, imitation, migration, M)
+
+    # perform simulation
     simulate(world, stats, time_max, iteration_max, show_animation)

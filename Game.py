@@ -1,15 +1,22 @@
 import abc, random, numpy as np
 from enum import Enum
 
+"""
+The range of strategies which a player can perform in a game
+"""
 class Strategy(Enum):
     cooperate = 0
     defect = 1
 
+"""
+An individual agent involved in a game
+"""
 class Player():
     def __init__(self, strategy):
         self.strategy = strategy
         self.cell = None
         self.payoff = 0
+
 
 class PrisonersDilemmaPlayer(Player):
     def __init__(self, strategy):
@@ -25,7 +32,10 @@ class AsymmetricPrisonersDilemmaPlayer(Player):
         self.esteem = self.love*np.random.choice(np.arange(0,2), p=[p, 1-p])
         self.fulfill = self.esteem*np.random.choice(np.arange(0,2), p=[p, 1-p])
 
-
+"""
+A set of rules which defines the interaction between players and determines
+their payoffs
+"""
 class Game(abc.ABC):
     @abc.abstractmethod
     def play(self, p1: Player, p2: Player):
@@ -58,7 +68,7 @@ class PrisonersDilemma(Game):
                 return (self.P, self.P)
         else:
             print("Player strategies not well defined!")
-            exit()
+            quit()
 
 
 class AsymmetricPrisonersDilemma(PrisonersDilemma):
