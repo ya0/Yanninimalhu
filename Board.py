@@ -1,6 +1,6 @@
 # TODO: Implement network as a Board subclass
 
-import abc, random, pygame as pg
+import abc, random, math, pygame as pg
 from Game import Player, Strategy
 
 class Board(abc.ABC):
@@ -14,6 +14,10 @@ class Board(abc.ABC):
 
     @abc.abstractmethod
     def occupied(self, cell):
+        pass
+
+    @abc.abstractmethod
+    def get_distance_between(self, cell1, cell2):
         pass
 
     @abc.abstractmethod
@@ -66,6 +70,12 @@ class RectangularGrid(Board):
 
     def occupied(self, cell):
         return self.grid[cell[0]][cell[1]] != None
+
+
+    def get_distance_between(self, cell1, cell2):
+        y1, x1 = cell1
+        y2, x2 = cell2
+        return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
 
     def get_neumann_neighboring_players(self, cell):
