@@ -1,11 +1,11 @@
-import random, time
+import random, time, matplotlib.pyplot as plt
 from World import World
 from Board import RectangularGrid
 from Game import PrisonersDilemma, AsymmetricPrisonersDilemma, Player, \
     PrisonersDilemmaPlayer, AsymmetricPrisonersDilemmaPlayer, Strategy
-# from animation import setup_screen, draw_update
+from SimulationStatistics import StrategyFractionsTimeSeries
 
-def simulate(world, time_max = 30, iteration_max = 1000000, show_animation = False):
+def simulate(world, stats=None, time_max = 30, iteration_max = 100000, show_animation = False):
     """ simulates the evolution of strategies in the world
     N.B. animation only works with grid topology at the moment
     """
@@ -20,16 +20,25 @@ def simulate(world, time_max = 30, iteration_max = 1000000, show_animation = Fal
     time_max = t + time_max
     iteration = 0
     while t < time_max and iteration < iteration_max:
+        # perform one round of updates
         world.round()
-
         if show_animation:
             world.board.draw()
 
+        # record statistics
+        if stats:
+            stats.record_stats(world, iteration)
+            # stop simulation based on statistics
+            if stats.end_simulation(world, iteration):
+                print("Hello")
+                break
+
+        # loop management
         iteration += 1
         t = time.time()
 
-        if iteration == 200:
-            time.sleep(5)
+    if stats:
+        stats.print_results()
 
 if __name__ == "__main__":
 
@@ -72,10 +81,13 @@ if __name__ == "__main__":
     moore_neighborhood_range = 5
 
     # simulation parameters
-    time_max = 60
+    time_max = 10
     iteration_max = 1000
     show_animation = True
 
+    # statistics to record in the simulation
+    stats = StrategyFractionsTimeSeries()
+
     # create world to simulate evolution of strategies
     world = World(game, board, players, r, q, noise1, noise2, imitation, migration, moore_neighborhood_range)
-    simulate(world, time_max, iteration_max, show_animation)
+    simulate(world, stats, time_max, iteration_max, show_animation)
