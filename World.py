@@ -21,6 +21,7 @@ class World():
         """
         self.game = game
         self.board = board
+        self.num_players = len(players)
         self.players = players
         self.r = r
         self.q = q
@@ -155,7 +156,7 @@ class World():
 
         player.strategy = most_successful_neighbor.strategy
 
-    def get_num_players_with_stretegy(self, strat):
+    def get_num_players_with_strategy(self, strat):
         """ returns the number of players on the grid using a given stratgy
         """
         counter = 0

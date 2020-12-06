@@ -22,13 +22,20 @@ A **board** is the topology of the world in which the game takes place. It is ma
 A **world** consists of a game, a set of players, and a board, and can be thought of as a "world" in which the simulation takes place. The world governs the behavioural policies of players in response to the outcomes of their game interaction, and evolves accordingly. In this code this is modelled by the World class.
 
 ## Running Simulations
-All simulations can be run from the file `simulate.py` by editing the parameters in the `if __name__ == "__main__"` section and running the script `simulate.py`.
-Many parameters are self-explanatory, and as much as possible I've uesd the terms defined in the Helbing paper.
-In essence you need to define a game, a board and a list of players. (Existing game types, board types and player types are defined in Game.py and Board.py, but feel free add other interesting ones you have in mind (see below)).
-These are used to create a world, which will automatically distribute the players randomly across the board, and which will be able to evolve by performing a round of updates. A _round_ is a sequence in which every player plays a game with his/her neighbors and updates his/her strategy and/or position exactly once (in a random order). The simulation works by instructing the world to repeatedly perform these rounds.
+All simulations can be carried out by running the script `simulate.py`. The simulation repeatedly updates the world in a series of rounds. A _round_ is a sequence in which every player plays a game with his/her neighbors and updates his/her strategy and/or position exactly once (in a random order). After each round, the program can optionally display the game board and record statistics.
+
+### World creation
+To create a world in which you can run simulations, you must provide a game, players, and the board. (Game types, player types and board types are defined in the files `Game.py` and `Board.py` - for more information see below.) The world will automatically distribute the players randomly across the board.
+
+### Editing parameters
+The simulation type can be changed by editing the parameters in the `if __name__ == "__main__"` section of the file `simulate.py`. As much as possible I've used the same names for parameters as those which appear in the Helbing paper.
+
+### Analyzing the simulation with statistics
+The simulation also supports recording statistics about the world with an optional SimulationStatistics object. (Simulation statistics types are defined in the files `SimulationStatistics.py` - for more information see below.)
 
 ## Extending the Model
-I've done my best to write the code to be extendable to different games, players, and boards. To add your own, simply create a new class which inherits from the appropriate base class.
+I've done my best to write the code to be extendable to different games, players, boards, and statistics. To add your own, simply create a new class which inherits from the appropriate base class.
 * A new player class should inherit from the class `Player`, to guarantee that it keeps track of the strategy, position (cell), and payoff of the player.
 * A new Game class should inherit from the abstract class `Game`, with the simple requirement that it implement the `play` method defining the payoffs resulting from the interaction of two players.
 * A new Board class should inherit from the abstract class `Board`. This requires that it implement several functions essential to the operation of the imitation and migration behavioural policies studied here.
+* A new SimulationStatistics class should inherit from the abstract class `SimulationStatistics`. This requires that it implement methods to record statistics and print the results, and optionally to determine the end of the simulation based on its own statistical results.
