@@ -162,6 +162,9 @@ class World():
 
         neighbors = self.board.get_players_in_play_neighborhood(player.cell)
         for neighbor in neighbors:
+            # check payoff of neighbor in its current neighborhood
+            self.play_with_neighbors(neighbor)
+
             if neighbor.payoff > greatest_payoff:
                 greatest_payoff = neighbor.payoff
                 most_successful_neighbor = neighbor
