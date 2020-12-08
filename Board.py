@@ -33,7 +33,7 @@ class Board(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def get_empty_cells_in_migration_neighboorhood(self, cell, radius):
+    def get_empty_cells_in_migration_neighboorhood(self, cell, M):
         """ gets the empty cells which a player in a cell would be able to
         migrate to
         """
@@ -92,41 +92,38 @@ class RectangularGrid(Board):
         i, j = cell
         players = []
 
-        if i > 0:
-            if self.occupied((i-1, j)):
-                players.append(self.get_player_from_cell((i-1, j)))
-        if i < self.height - 1:
-            if self.occupied((i+1, j)):
-                players.append(self.get_player_from_cell((i+1, j)))
-        if j > 0:
-            if self.occupied((i, j-1)):
-                players.append(self.get_player_from_cell((i, j-1)))
-        if j < self.width - 1:
-            if self.occupied((i, j+1)):
-                players.append(self.get_player_from_cell((i, j+1)))
+        # Moore neighborhood accounting for periodic boundary conditions
+        cell_above = ((i - 1) % self.height, j)
+        cell_below = ((i + 1) % self.height, j)
+        cell_left = (i, (j - 1) % self.width)
+        cell_right = (i, (j + 1) % self.width)
+        moore_neighborhood = [cell_above, cell_below, cell_left, cell_right]
+
+        for cell in moore_neighborhood:
+            if self.occupied(cell):
+                players.append(self.get_player_from_cell(cell))
 
         return players
 
 
-    def get_empty_cells_in_migration_neighboorhood(self, cell, r):
+    def get_empty_cells_in_migration_neighboorhood(self, cell, M):
         """ gets the empty cells in the Neumann neighborhood of the cell
         """
         i, j = cell
         neighboring_empty_cells = []
 
-        for m in range(i - r, i + r + 1):
-            for n in range(j - r, j + r + 1):
-                # ignore out-of-bounds cells
-                if m < 0 or m >= self.height or n < 0 or n >= self.width:
-                    continue
+        for a in range(i - M, i + M + 1):
+            for b in range(j - M, j + M + 1):
+                # cell coordinates accounting for periodic boundary conditions
+                m = a % self.height
+                n = b % self.width
 
                 # ignore the cell itself
                 if m == i and n == j:
                     continue
 
-                if abs(m - i) <= r and abs(n - j) <= r:
-                    if self.grid[m][n] == None:
-                        neighboring_empty_cells.append((m, n))
+                if self.grid[m][n] == None:
+                    neighboring_empty_cells.append((m, n))
 
         return neighboring_empty_cells
 
