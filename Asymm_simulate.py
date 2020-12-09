@@ -58,7 +58,8 @@ if __name__ == "__main__":
     num_players = grid_height * grid_width // 2
     p_cooperation = 0.5
     coops=[]
-    for n in range(3,10):
+    for n in range(1,10):
+        coops=[]
         for i in range(0, 11):
             p=i // 10 ## prob that need is not satisfied
 
@@ -100,7 +101,7 @@ if __name__ == "__main__":
             #f=open("/Users/malvika/Downloads/Yanninimalhu-master 4/coops.txt","w")
             ##f.close()
 
-        with open('/Users/malvika/Downloads/Yanninimalhu-master 4/{0}{1}.txt'.format("coops", n), 'w') as f:
+        with open('/Users/malvika/Downloads/Yanninimalhu-master 4/{0}{1}.txt'.format("coops_", n), 'w') as f:
             for item in coops:
                 f.write("%s\n" % item)
             
