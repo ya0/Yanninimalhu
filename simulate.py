@@ -29,6 +29,7 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
             if stats.end_simulation(world, iteration):
                 break
 
+
         # update loop variables
         iteration += 1
         t = time.time()
