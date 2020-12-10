@@ -6,7 +6,8 @@ from Board import RectangularGrid
 The world in which the simulation takes place
 """
 class World():
-    def __init__(self, game, board, players, r = 0, q = 0, noise1 = False, noise2 = False, imitation = False, migration = False, M = 0):
+    def __init__(self, game, board, players, r = 0, q = 0, noise1 = False, \
+                noise2 = False, imitation = False, migration = False, M = 0):
         """
         - game: game played between two players during an interaction
         - board: topology of the world
@@ -122,7 +123,7 @@ class World():
         """
         current_cell = player.cell
 
-        # dictionary to record most favorable cell in neighborhood
+        # dictionary to record payoffs in neighboring cells
         migration_payoff = {}
 
         # calculate payoff in current cell
@@ -133,7 +134,8 @@ class World():
 
         # simulate payoffs in neighboring empty cells
         empty_cells = \
-            self.board.get_empty_cells_in_migration_neighboorhood(player.cell, self.M)
+            self.board.get_empty_cells_in_migration_neighboorhood( \
+                                                        player.cell, self.M)
         for empty_cell in empty_cells:
             self.move_player(player, empty_cell)
             self.play_with_neighbors(player)
@@ -149,7 +151,9 @@ class World():
                 best_cells.append(cell)
 
         random.shuffle(best_cells)
-        closest_best_cell = min(best_cells, key=lambda cell: self.board.get_distance_between(cell, current_cell))
+        closest_best_cell = \
+            min(best_cells, key=lambda \
+                cell: self.board.get_distance_between(cell, current_cell))
         self.move_player(player, closest_best_cell)
 
 
@@ -162,7 +166,7 @@ class World():
 
         neighbors = self.board.get_players_in_play_neighborhood(player.cell)
         for neighbor in neighbors:
-            # check payoff of neighbor in its current neighborhood
+            # update payoff of neighbor in its current neighborhood
             self.play_with_neighbors(neighbor)
 
             if neighbor.payoff > greatest_payoff:
@@ -172,8 +176,7 @@ class World():
         player.strategy = most_successful_neighbor.strategy
 
     def get_num_players_with_strategy(self, strat):
-        """ returns the number of players on the grid using a given stratgy
-        """
+        """ returns the number of players on the grid using a stratgy """
         counter = 0
         for i in range(len(self.players)):
             if self.players[i].strategy == strat:

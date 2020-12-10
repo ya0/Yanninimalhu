@@ -1,4 +1,5 @@
-import abc, random, pylab, pygame as pg, networkx as nx, matplotlib.pyplot as plt
+import abc, random, pylab, math
+import pygame as pg, networkx as nx, matplotlib.pyplot as plt
 from Game import Player, Strategy
 
 """
@@ -16,11 +17,12 @@ class Board(abc.ABC):
 
     @abc.abstractmethod
     def occupied(self, cell):
-        """ determine whether a cell is occupied by a player """
+        """ determines whether a cell is occupied by a player """
         pass
 
     @abc.abstractmethod
     def get_distance_between(self, cell1, cell2):
+        """ calculates the distance between two cells """
         pass
 
     @abc.abstractmethod
@@ -54,17 +56,6 @@ class RectangularGrid(Board):
         self.height = height
         self.width = width
         self.grid = [[None for j in range(width)] for i in range(height)]
-
-        # visualization setup
-        background_color = (0, 0, 0)
-        cell_height = 16
-        cell_width = 16
-        screen_dimensions = (cell_width * self.width,
-                            cell_height * self.height)
-        pg.init()
-        self.screen = pg.display.set_mode(screen_dimensions)
-        pg.display.set_caption("Strategy Evolution Simulation")
-        self.screen.fill(background_color)
 
     def assign_player_to_cell(self, player, cell):
         self.grid[cell[0]][cell[1]] = player
@@ -104,7 +95,8 @@ class RectangularGrid(Board):
 
 
     def get_empty_cells_in_migration_neighboorhood(self, cell, M):
-        """ gets the empty cells in the Neumann neighborhood of the cell
+        """ gets the empty cells in the Neumann neighborhood of range M of
+        the cell
         """
         i, j = cell
         neighboring_empty_cells = []
@@ -138,6 +130,22 @@ class RectangularGrid(Board):
 
 
     def draw(self):
+
+        # visualization setup on first pass
+        try:
+            self.screen
+        except AttributeError:
+            background_color = (0, 0, 0)
+            cell_height = 16
+            cell_width = 16
+            screen_dimensions = (cell_width * self.width,
+                                cell_height * self.height)
+            pg.init()
+            self.screen = pg.display.set_mode(screen_dimensions)
+            pg.display.set_caption("Strategy Evolution Simulation")
+            self.screen.fill(background_color)
+
+        # draw board cell by cell
         blue = (0, 0, 255)
         red = (255, 0, 0)
         white = (255, 255, 255)
@@ -184,15 +192,6 @@ class Network(Board):
 
     def get_distance_between(self, cell1, cell2):
         quit("Migration not implemented on network board")
-        # ego_graph = nx.generators.ego.ego_graph(self.graph, cell, radius, center=False)
-        # neighboring_cells = list(ego_graph.nodes)
-        #
-        # neighboring_empty_cells = []
-        # for cell in neighboring_cells:
-        #     if self.players[cell] == None:
-        #         neighboring_empty_cells.append(cell)
-        #
-        # return neighboring_empty_cells
 
 
     def get_players_in_play_neighborhood(self, cell):
@@ -208,7 +207,8 @@ class Network(Board):
 
     def get_empty_cells_in_migration_neighboorhood(self, cell, radius):
         quit("Migration not implemented on network board")
-        # ego_graph = nx.generators.ego.ego_graph(self.graph, cell, radius, center=False)
+        # ego_graph = nx.generators.ego.ego_graph(self.graph, \
+        #                                       cell, radius, center=False)
         # neighboring_cells = list(ego_graph.nodes)
         #
         # neighboring_empty_cells = []
@@ -234,7 +234,7 @@ class Network(Board):
             self.figure = plt.figure("Board")
             self.figure.show()
 
-        
+
         color_map = []
         for cell in self.graph:
             if self.players[cell] == None:
