@@ -1,6 +1,6 @@
 import random, time, matplotlib.pyplot as plt
 from World import World
-from Board import RectangularGrid
+from Board import RectangularGrid, Network
 from Game import PrisonersDilemma, AsymmetricPrisonersDilemma, Player, \
     PrisonersDilemmaPlayer, AsymmetricPrisonersDilemmaPlayer, Strategy
 from SimulationStatistics import StrategyFractionsTimeSeries
@@ -12,6 +12,10 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
     """
     if show_animation:
         world.board.draw()
+
+    # record statistics
+    if stats:
+        stats.record_stats(world, 0)
 
     t = time.time()
     time_max = t + time_max
@@ -50,13 +54,15 @@ if __name__ == "__main__":
 
     # define a world topology ("board") - e.g. grid, network
     # choose a board type from Board.py
-    grid_height = 50
-    grid_width = 50
-    board = RectangularGrid(grid_height, grid_width)
+    # grid_height = 50
+    # grid_width = 50
+    # board = RectangularGrid(grid_height, grid_width)
+    num_nodes = 100
+    board = Network(num_nodes, 4, 0.2)
 
     # define the players in the world
     # choose a player type from Game.py
-    num_players = grid_height * grid_width // 2
+    num_players = num_nodes // 2
     p_cooperation = 0.5
 
     players = []

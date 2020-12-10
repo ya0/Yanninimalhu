@@ -1,4 +1,4 @@
-import abc, matplotlib.pyplot as plt
+import abc, time, matplotlib.pyplot as plt
 from Game import Strategy
 
 class SimulationStatistics(abc.ABC):
@@ -38,6 +38,8 @@ class StrategyFractionsTimeSeries(SimulationStatistics):
             return False
 
     def print_results(self):
+        self.figure = plt.figure("Strategy Fractions Time Series")
+
         cooperator_fraction_plot = \
             plt.plot(self.cooperator_fraction_ts, label="Cooperator fraction")
         defector_fraction_plot = \
@@ -46,4 +48,9 @@ class StrategyFractionsTimeSeries(SimulationStatistics):
         plt.xlabel('Iteration')
         plt.ylabel('Fraction of players with strategy')
         plt.legend()
+        
+        self.figure.canvas.flush_events()
         plt.show()
+
+        # sleep to prevent results disappearing immediately
+        time.sleep(20)

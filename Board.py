@@ -1,6 +1,4 @@
-# TODO: Implement network as a Board subclass
-
-import abc, random, math, pygame as pg
+import abc, random, pylab, pygame as pg, networkx as nx, matplotlib.pyplot as plt
 from Game import Player, Strategy
 
 """
@@ -78,7 +76,6 @@ class RectangularGrid(Board):
 
     def occupied(self, cell):
         return self.grid[cell[0]][cell[1]] != None
-
 
     def get_distance_between(self, cell1, cell2):
         y1, x1 = cell1
@@ -164,3 +161,90 @@ class RectangularGrid(Board):
                     pg.draw.rect(self.screen, white, tup, 0)
 
         pg.display.update()
+
+class Network(Board):
+    def __init__(self, N, k, p):
+        self.N = N
+        self.graph = nx.watts_strogatz_graph(N, k, p)
+        self.pos = nx.spring_layout(self.graph)
+        self.players = [None for i in range(N)]
+
+
+    def assign_player_to_cell(self, player, cell):
+        self.players[cell] = player
+
+
+    def get_player_from_cell(self, cell):
+        return self.players[cell]
+
+
+    def occupied(self, cell):
+        return self.players[cell] != None
+
+
+    def get_distance_between(self, cell1, cell2):
+        quit("Migration not implemented on network board")
+        # ego_graph = nx.generators.ego.ego_graph(self.graph, cell, radius, center=False)
+        # neighboring_cells = list(ego_graph.nodes)
+        #
+        # neighboring_empty_cells = []
+        # for cell in neighboring_cells:
+        #     if self.players[cell] == None:
+        #         neighboring_empty_cells.append(cell)
+        #
+        # return neighboring_empty_cells
+
+
+    def get_players_in_play_neighborhood(self, cell):
+        neighboring_cells = self.graph.neighbors(cell)
+
+        neighboring_players = []
+        for neighboring_cell in neighboring_cells:
+            if self.players[neighboring_cell] != None:
+                neighboring_players.append(self.players[neighboring_cell])
+
+        return neighboring_players
+
+
+    def get_empty_cells_in_migration_neighboorhood(self, cell, radius):
+        quit("Migration not implemented on network board")
+        # ego_graph = nx.generators.ego.ego_graph(self.graph, cell, radius, center=False)
+        # neighboring_cells = list(ego_graph.nodes)
+        #
+        # neighboring_empty_cells = []
+        # for cell in neighboring_cells:
+        #     if self.players[cell] == None:
+        #         neighboring_empty_cells.append(cell)
+        #
+        # return neighboring_empty_cells
+
+
+    def random_cell_sequence(self):
+        random_cell_sequence = [i for i in range(self.N)]
+        random.shuffle(random_cell_sequence)
+        return random_cell_sequence
+
+
+    def draw(self):
+        # board setup on first pass
+        try:
+            self.figure
+        except AttributeError:
+            plt.ion()
+            self.figure = plt.figure("Board")
+            self.figure.show()
+
+        
+        color_map = []
+        for cell in self.graph:
+            if self.players[cell] == None:
+                color_map.append('black')
+            else:
+                if self.players[cell].strategy == Strategy.cooperate:
+                    color_map.append('blue')
+                elif self.players[cell].strategy == Strategy.defect:
+                    color_map.append('red')
+
+        plt.figure(self.figure.number)
+        nx.draw(self.graph, node_color=color_map, with_labels=True, pos=self.pos)
+        self.figure.canvas.flush_events()
