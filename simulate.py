@@ -1,8 +1,7 @@
 import random, time, matplotlib.pyplot as plt
 from World import World
-from Board import RectangularGrid, Network
-from Game import PrisonersDilemma, AsymmetricPrisonersDilemma, Player, \
-    PrisonersDilemmaPlayer, AsymmetricPrisonersDilemmaPlayer, Strategy
+from Board import RectangularGrid,
+from Game import PrisonersDilemma, Player, PrisonersDilemmaPlayer, Strategy
 from SimulationStatistics import StrategyFractionsTimeSeries
 
 def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
@@ -10,16 +9,17 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
     """ simulates the evolution of strategies in the world, allowing for
     visualization and the recording of statistics
     """
+    t = time.time()
+    time_max = t + time_max
+    iteration = 0
+
     if show_animation:
         world.board.draw()
 
     # record statistics
     if stats:
-        stats.record_stats(world, 0)
+        stats.record_stats(world, iteration)
 
-    t = time.time()
-    time_max = t + time_max
-    iteration = 0
     while t < time_max and iteration < iteration_max:
         # perform one round of updates
         world.round()
@@ -33,13 +33,13 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
             if stats.end_simulation(world, iteration):
                 break
 
-
         # update loop variables
         iteration += 1
         t = time.time()
 
     if stats:
         stats.print_results()
+
 
 if __name__ == "__main__":
     """ Adjust simulation parameters here """
@@ -54,15 +54,13 @@ if __name__ == "__main__":
 
     # define a world topology ("board") - e.g. grid, network
     # choose a board type from Board.py
-    # grid_height = 50
-    # grid_width = 50
-    # board = RectangularGrid(grid_height, grid_width)
-    num_nodes = 100
-    board = Network(num_nodes, 4, 0.2)
+    grid_height = 50
+    grid_width = 50
+    board = RectangularGrid(grid_height, grid_width)
 
     # define the players in the world
     # choose a player type from Game.py
-    num_players = num_nodes // 2
+    num_players = grid_height * grid_width // 2
     p_cooperation = 0.5
 
     players = []
@@ -76,10 +74,10 @@ if __name__ == "__main__":
     # define player update parameters
     r = 0.05 # probability that a player randomly resets its strategy
     q = 0.05 # conditional probability that a player resets to cooperate
-    noise1 = False # a boolean indicating whether Noise 1 is present
+    noise1 = True # a boolean indicating whether Noise 1 is present
     noise2 = False # a boolean indicating whether Noise 2 is present
-    imitation = False # a boolean indicating whether players perform imitation
-    migration = False # a boolean indicating whether players perform migration
+    imitation = True # a boolean indicating whether players perform imitation
+    migration = True # a boolean indicating whether players perform migration
     M = 5 # the range of the Moore neighborhood around each cell
 
     # simulation parameters
