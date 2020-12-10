@@ -28,6 +28,8 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
             # stop simulation based on statistics
             if stats.end_simulation(world, iteration):
                 break
+            
+        print('test??')
 
         # update loop variables
         iteration += 1

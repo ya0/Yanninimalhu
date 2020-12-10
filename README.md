@@ -1,7 +1,7 @@
 # Strategy Evolution Code
 
 ## Overview
-This code was developed to simulate the evolution of cooperative and defecting behaviour in large populations. In the model, members of the population (players) interact with others around them by playing games, and the payoff each player receives depends on the strategy they employ. Players may adjust their strategy over time to maximize their payoff in the long run. We considered two behavioural policies, as outlined in detail in this Helbing paper <link>:
+This code was developed to simulate the evolution of cooperative and defecting behaviour in large populations. The project is mainly based on the Ideas in the paper [Outbreak of Cooperation](https://arxiv.org/abs/0903.4054) by Helbing and Yu.  In the model, members of the population (players) interact with others around them by playing games, and the payoff each player receives depends on the strategy they employ. Players may adjust their strategy over time to maximize their payoff in the long run. We considered two behavioural policies, as outlined in detail in this Helbing paper <link>:
 * Imitation: players imitate players in their vicinity with the highest payoff
 * Migration: players move to regions in which their strategy would see them achieve the highest payoff.
 We are interested to see whether these individual behavioural policies can lead to macroscopic effects, in particular the emergence of cooperative behaviour.
@@ -21,11 +21,70 @@ A **board** is the topology of the world in which the game takes place. It is ma
 
 A **world** consists of a game, a set of players, and a board, and can be thought of as a "world" in which the simulation takes place. The world governs the behavioural policies of players in response to the outcomes of their game interaction, and evolves accordingly. In this code this is modelled by the World class.
 
+## Installation
+First download the code ([master](https://github.com/ya0/Yanninimalhu/archive/master.zip)). Then install the requirements with
+
+```bash
+pip intall requirements.txt
+```
+for simulations on a 2D grid. Or 
+
+```bash
+pip intall requirements_network.txt
+```
+for simulations on a Node Network.
+
 ## Running Simulations
 All simulations can be carried out by running the script `simulate.py`. The simulation repeatedly updates the world in a series of rounds. A _round_ is a sequence in which every player plays a game with his/her neighbors and updates his/her strategy and/or position exactly once (in a random order). After each round, the program can optionally display the game board and record statistics.
 
 ### World creation
 To create a world in which you can run simulations, you must provide a game, players, and the board. (Game types, player types and board types are defined in the files `Game.py` and `Board.py` - for more information see below.) The world will automatically distribute the players randomly across the board.
+
+```python
+"""
+first create a Prisoners Dilemma with parameters
+    T: temptacion
+    R: reward
+    P: punishment
+    S: sucker's payoff
+"""
+game = PrisonersDilemma(T, R, P, S)
+""" initiate a grid"""
+board = RectangularGrid(grid_height, grid_width)
+
+""" setup players based on the dimension of the grid and 
+set the to cooperate or defect
+
+ p_cooperation: percentage of cooperating players
+"""
+num_players = grid_height * grid_width // 2
+p_cooperation = 0.5
+
+players = []
+for i in range(num_players):
+    rand = random.random()
+    if rand < p_cooperation:
+        players.append(PrisonersDilemmaPlayer(Strategy.cooperate))
+    else:
+        players.append(PrisonersDilemmaPlayer(Strategy.defect))
+"""
+Finaly create a world object
+    - game: game played between two players during an interaction
+    - board: topology of the world
+    - players: a list of players in the world
+
+optional arguments:
+    - r: probability that a player randomly resets its strategy
+    - q: conditional probability that a player resets to cooperate
+    - noise1: a boolean indicating whether Noise 1 is present
+    - noise2: a boolean indicating whether Noise 2 is present
+    - imitation: a boolean indicating whether players perform imitation
+    - migration: a boolean indicating whether players perform migration
+    - M: the range of the Moore neighborhood around each cell
+"""
+world = World(game, board, players)
+```
+
 
 ### Editing parameters
 The simulation type can be changed by editing the parameters in the `if __name__ == "__main__"` section of the file `simulate.py`. As much as possible I've used the same names for parameters as those which appear in the Helbing paper.
