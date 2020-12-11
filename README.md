@@ -11,12 +11,12 @@ We are interested to see whether these individual behavioural policies can lead 
 First download the code ([master](https://github.com/ya0/Yanninimalhu/archive/master.zip)). Then install the requirements with
 
 ```bash
-pip intall requirements.txt
+pip intall -r requirements.txt
 ```
 for simulations on a 2D grid. Or 
 
 ```bash
-pip intall requirements_network.txt
+pip intall -r requirements_network.txt
 ```
 for simulations on a Node Network.
 
