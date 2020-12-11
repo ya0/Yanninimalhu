@@ -1,4 +1,6 @@
-import abc, random, numpy as np
+import abc
+import random
+import numpy as np
 from enum import Enum
 
 """
@@ -32,10 +34,14 @@ class AsymmetricPrisonersDilemmaPlayer(Player):
     def __init__(self, strategy, p):
         super().__init__(strategy)
         self.physio = np.random.choice(np.arange(0, 2), p=[p, 1 - p])
-        self.safety = self.physio * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
-        self.love = self.safety * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
-        self.esteem = self.love * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
-        self.fulfill = self.esteem * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.safety = self.physio * \
+            np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.love = self.safety * \
+            np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.esteem = self.love * \
+            np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.fulfill = self.esteem * \
+            np.random.choice(np.arange(0, 2), p=[p, 1 - p])
 
 
 """

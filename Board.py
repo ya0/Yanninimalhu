@@ -1,5 +1,10 @@
-import abc, random, pylab, math
-import pygame as pg, networkx as nx, matplotlib.pyplot as plt
+import abc
+import random
+import pylab
+import math
+import pygame as pg
+import networkx as nx
+import matplotlib.pyplot as plt
 from Game import Player, Strategy
 
 """
@@ -137,7 +142,8 @@ class RectangularGrid(Board):
             background_color = (0, 0, 0)
             cell_height = 16
             cell_width = 16
-            screen_dimensions = (cell_width * self.width, cell_height * self.height)
+            screen_dimensions = (cell_width * self.width,
+                                 cell_height * self.height)
             pg.init()
             self.screen = pg.display.set_mode(screen_dimensions)
             pg.display.set_caption("Strategy Evolution Simulation")
@@ -242,5 +248,6 @@ class Network(Board):
                     color_map.append("red")
 
         plt.figure(self.figure.number)
-        nx.draw(self.graph, node_color=color_map, with_labels=True, pos=self.pos)
+        nx.draw(self.graph, node_color=color_map,
+                with_labels=True, pos=self.pos)
         self.figure.canvas.flush_events()

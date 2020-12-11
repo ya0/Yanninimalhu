@@ -1,4 +1,6 @@
-import abc, time, matplotlib.pyplot as plt
+import abc
+import time
+import matplotlib.pyplot as plt
 from Game import Strategy
 
 
@@ -22,10 +24,13 @@ class StrategyFractionsTimeSeries(SimulationStatistics):
         self.defector_fraction_ts = []
 
     def record_stats(self, world, iteration):
-        cooperator_fraction = world.get_num_players_with_strategy(Strategy.cooperate)
-        defector_fraction = world.get_num_players_with_strategy(Strategy.defect)
+        cooperator_fraction = world.get_num_players_with_strategy(
+            Strategy.cooperate)
+        defector_fraction = world.get_num_players_with_strategy(
+            Strategy.defect)
 
-        self.cooperator_fraction_ts.append(cooperator_fraction / world.num_players)
+        self.cooperator_fraction_ts.append(
+            cooperator_fraction / world.num_players)
         self.defector_fraction_ts.append(defector_fraction / world.num_players)
 
     def end_simulation(self, world, iteration):

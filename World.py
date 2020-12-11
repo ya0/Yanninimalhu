@@ -5,9 +5,11 @@ from Board import RectangularGrid
 """
 The world in which the simulation takes place
 """
+
+
 class World():
-    def __init__(self, game, board, players, r = 0, q = 0, noise1 = False, \
-                noise2 = False, imitation = False, migration = False, M = 0):
+    def __init__(self, game, board, players, r=0, q=0, noise1=False,
+                 noise2=False, imitation=False, migration=False, M=0):
         """
         - game: game played between two players during an interaction
         - board: topology of the world
@@ -41,7 +43,8 @@ class World():
         random.shuffle(self.players)
         for i in range(len(self.players)):
             self.players[i].cell = random_cell_sequence[i]
-            self.board.assign_player_to_cell(self.players[i], random_cell_sequence[i])
+            self.board.assign_player_to_cell(
+                self.players[i], random_cell_sequence[i])
 
     def round(self):
         """carries out one round of updates, in which each player is updated
@@ -146,7 +149,8 @@ class World():
         random.shuffle(best_cells)
         closest_best_cell = min(
             best_cells,
-            key=lambda cell: self.board.get_distance_between(cell, current_cell),
+            key=lambda cell: self.board.get_distance_between(
+                cell, current_cell),
         )
         self.move_player(player, closest_best_cell)
 

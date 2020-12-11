@@ -1,4 +1,6 @@
-import random, time, matplotlib.pyplot as plt
+import random
+import time
+import matplotlib.pyplot as plt
 from World import World
 from Board import RectangularGrid
 from Game import (
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     for n in range(1, 10):
         coops = []
         for i in range(0, 11):
-            p = i // 10  ## prob that need is not satisfied
+            p = i // 10  # prob that need is not satisfied
 
             players = []
             for i in range(num_players):
@@ -80,7 +82,8 @@ if __name__ == "__main__":
                         AsymmetricPrisonersDilemmaPlayer(Strategy.cooperate, p)
                     )
                 else:
-                    players.append(AsymmetricPrisonersDilemmaPlayer(Strategy.defect, p))
+                    players.append(
+                        AsymmetricPrisonersDilemmaPlayer(Strategy.defect, p))
 
             # define player update parameters
             r = 0.05  # probability that a player randomly resets its strategy
@@ -111,7 +114,7 @@ if __name__ == "__main__":
             coops.append(stats.record_stats(world, iteration_max))
             # print(coops)
             # f=open("/Users/malvika/Downloads/Yanninimalhu-master 4/coops.txt","w")
-            ##f.close()
+            # f.close()
 
         with open('/Users/malvika/Downloads/Yanninimalhu-master 4/{0}{1}.txt'.format("coops_", n), 'w') as f:
             for item in coops:

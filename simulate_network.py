@@ -1,4 +1,6 @@
-import random, time, matplotlib.pyplot as plt
+import random
+import time
+import matplotlib.pyplot as plt
 from World import World
 from Board import RectangularGrid, Network
 from Game import (

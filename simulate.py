@@ -1,4 +1,6 @@
-import random, time, matplotlib.pyplot as plt
+import random
+import time
+import matplotlib.pyplot as plt
 from World import World
 from Board import RectangularGrid
 from Game import PrisonersDilemma, Player, PrisonersDilemmaPlayer, Strategy
@@ -95,7 +97,8 @@ if __name__ == "__main__":
     stats = StrategyFractionsTimeSeries()
 
     # define the world to simulate evolution of strategies
-    world = World(game, board, players, r, q, noise1, noise2, imitation, migration, M)
+    world = World(game, board, players, r, q, noise1,
+                  noise2, imitation, migration, M)
 
     # perform simulation
     simulate(world, stats, time_max, iteration_max, show_animation)
