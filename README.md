@@ -21,7 +21,7 @@ pip install -r requirements_network.txt
 for simulations on a Node Network.
 
 ## Example
-To see a basic example of a simulation on a 2D grid you can run `simulation.py` on the console
+To see a basic example of a simulation on a 2D grid you can run `simulate.py` on the console
 ```bash
 python simulate.py
 ```
