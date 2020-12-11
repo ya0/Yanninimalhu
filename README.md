@@ -11,19 +11,19 @@ We are interested to see whether these individual behavioural policies can lead 
 First download the code ([master](https://github.com/ya0/Yanninimalhu/archive/master.zip)). Then install the requirements with
 
 ```bash
-pip intall -r requirements.txt
+pip install -r requirements.txt
 ```
 for simulations on a 2D grid. Or 
 
 ```bash
-pip intall -r requirements_network.txt
+pip install -r requirements_network.txt
 ```
 for simulations on a Node Network.
 
 ## Example
 To see a basic example of a simulation on a 2D grid you can run `simulation.py` on the console
 ```bash
-python simulation.py
+python simulate.py
 ```
 or use a IDE to run the file.
 A window will open showing a grid with two types of agents. The blue ones always cooperate and the red ones defect. This is a scenario described in the paper mentioned above where these agents try to find the best place for themselves in a Moore neighborhood of distance 5 and imitate their best performing neighbors. Also, noise is activated. After the simulation has run for 30 seconds you will get a statistical overview of the percentage of cooperators and defectors.
