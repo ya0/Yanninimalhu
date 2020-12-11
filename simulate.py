@@ -1,6 +1,6 @@
 import random, time, matplotlib.pyplot as plt
 from World import World
-from Board import RectangularGrid,
+from Board import RectangularGrid
 from Game import PrisonersDilemma, Player, PrisonersDilemmaPlayer, Strategy
 from SimulationStatistics import StrategyFractionsTimeSeries
 
@@ -36,6 +36,9 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
         # update loop variables
         iteration += 1
         t = time.time()
+        
+    if show_animation:
+        world.board.quit_animation()
 
     if stats:
         stats.print_results()
@@ -81,8 +84,8 @@ if __name__ == "__main__":
     M = 5 # the range of the Moore neighborhood around each cell
 
     # simulation parameters
-    time_max = 10
-    iteration_max = 1000
+    time_max = 15
+    iteration_max = 1500
     show_animation = True
 
     # define the statistics to record in the simulation

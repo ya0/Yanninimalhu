@@ -116,6 +116,8 @@ class RectangularGrid(Board):
 
         return neighboring_empty_cells
 
+    def quit_animation(self):
+        pg.quit()
 
     def random_cell_sequence(self):
 
@@ -132,6 +134,7 @@ class RectangularGrid(Board):
     def draw(self):
 
         # visualization setup on first pass
+        pg.init()
         try:
             self.screen
         except AttributeError:
@@ -145,10 +148,19 @@ class RectangularGrid(Board):
             pg.display.set_caption("Strategy Evolution Simulation")
             self.screen.fill(background_color)
 
+
+        # proper closing of the window....
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
+                pg.quit()
+
         # draw board cell by cell
         blue = (0, 0, 255)
         red = (255, 0, 0)
         white = (255, 255, 255)
+        
+
 
         for i in range(self.height):
             for j in range(self.width):
