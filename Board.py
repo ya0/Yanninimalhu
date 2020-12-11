@@ -6,6 +6,8 @@ from Game import Player, Strategy
 An abstract base class for the board, the topological environmental in
 which the players interact
 """
+
+
 class Board(abc.ABC):
     @abc.abstractmethod
     def assign_player_to_cell(self, player, cell):
@@ -27,14 +29,14 @@ class Board(abc.ABC):
 
     @abc.abstractmethod
     def get_players_in_play_neighborhood(self, cell):
-        """ gets the players which a player in a cell would be able to play
+        """gets the players which a player in a cell would be able to play
         with
         """
         pass
 
     @abc.abstractmethod
     def get_empty_cells_in_migration_neighboorhood(self, cell, M):
-        """ gets the empty cells which a player in a cell would be able to
+        """gets the empty cells which a player in a cell would be able to
         migrate to
         """
         pass
@@ -60,10 +62,8 @@ class RectangularGrid(Board):
     def assign_player_to_cell(self, player, cell):
         self.grid[cell[0]][cell[1]] = player
 
-
     def get_player_from_cell(self, cell):
         return self.grid[cell[0]][cell[1]]
-
 
     def occupied(self, cell):
         return self.grid[cell[0]][cell[1]] != None
@@ -73,10 +73,8 @@ class RectangularGrid(Board):
         y2, x2 = cell2
         return math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
 
-
     def get_players_in_play_neighborhood(self, cell):
-        """ gets the players in the Moore neighborhood of a cell
-        """
+        """gets the players in the Moore neighborhood of a cell"""
         i, j = cell
         players = []
 
@@ -93,9 +91,8 @@ class RectangularGrid(Board):
 
         return players
 
-
     def get_empty_cells_in_migration_neighboorhood(self, cell, M):
-        """ gets the empty cells in the Neumann neighborhood of range M of
+        """gets the empty cells in the Neumann neighborhood of range M of
         the cell
         """
         i, j = cell
@@ -130,7 +127,6 @@ class RectangularGrid(Board):
 
         return random_cell_sequence
 
-
     def draw(self):
 
         # visualization setup on first pass
@@ -141,13 +137,11 @@ class RectangularGrid(Board):
             background_color = (0, 0, 0)
             cell_height = 16
             cell_width = 16
-            screen_dimensions = (cell_width * self.width,
-                                cell_height * self.height)
+            screen_dimensions = (cell_width * self.width, cell_height * self.height)
             pg.init()
             self.screen = pg.display.set_mode(screen_dimensions)
             pg.display.set_caption("Strategy Evolution Simulation")
             self.screen.fill(background_color)
-
 
         # proper closing of the window....
         for event in pg.event.get():
@@ -159,8 +153,6 @@ class RectangularGrid(Board):
         blue = (0, 0, 255)
         red = (255, 0, 0)
         white = (255, 255, 255)
-        
-
 
         for i in range(self.height):
             for j in range(self.width):
@@ -182,6 +174,7 @@ class RectangularGrid(Board):
 
         pg.display.update()
 
+
 class Network(Board):
     def __init__(self, N, k, p):
         self.N = N
@@ -189,22 +182,17 @@ class Network(Board):
         self.pos = nx.spring_layout(self.graph)
         self.players = [None for i in range(N)]
 
-
     def assign_player_to_cell(self, player, cell):
         self.players[cell] = player
-
 
     def get_player_from_cell(self, cell):
         return self.players[cell]
 
-
     def occupied(self, cell):
         return self.players[cell] != None
 
-
     def get_distance_between(self, cell1, cell2):
         quit("Migration not implemented on network board")
-
 
     def get_players_in_play_neighborhood(self, cell):
         neighboring_cells = self.graph.neighbors(cell)
@@ -215,7 +203,6 @@ class Network(Board):
                 neighboring_players.append(self.players[neighboring_cell])
 
         return neighboring_players
-
 
     def get_empty_cells_in_migration_neighboorhood(self, cell, radius):
         quit("Migration not implemented on network board")
@@ -230,12 +217,10 @@ class Network(Board):
         #
         # return neighboring_empty_cells
 
-
     def random_cell_sequence(self):
         random_cell_sequence = [i for i in range(self.N)]
         random.shuffle(random_cell_sequence)
         return random_cell_sequence
-
 
     def draw(self):
         # board setup on first pass
@@ -246,16 +231,15 @@ class Network(Board):
             self.figure = plt.figure("Board")
             self.figure.show()
 
-
         color_map = []
         for cell in self.graph:
             if self.players[cell] == None:
-                color_map.append('black')
+                color_map.append("black")
             else:
                 if self.players[cell].strategy == Strategy.cooperate:
-                    color_map.append('blue')
+                    color_map.append("blue")
                 elif self.players[cell].strategy == Strategy.defect:
-                    color_map.append('red')
+                    color_map.append("red")
 
         plt.figure(self.figure.number)
         nx.draw(self.graph, node_color=color_map, with_labels=True, pos=self.pos)

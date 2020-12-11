@@ -4,9 +4,11 @@ from Board import RectangularGrid
 from Game import PrisonersDilemma, Player, PrisonersDilemmaPlayer, Strategy
 from SimulationStatistics import StrategyFractionsTimeSeries
 
-def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
-            show_animation = False):
-    """ simulates the evolution of strategies in the world, allowing for
+
+def simulate(
+    world, stats=None, time_max=30, iteration_max=100000, show_animation=False
+):
+    """simulates the evolution of strategies in the world, allowing for
     visualization and the recording of statistics
     """
     t = time.time()
@@ -36,7 +38,7 @@ def simulate(world, stats=None, time_max = 30, iteration_max = 100000, \
         # update loop variables
         iteration += 1
         t = time.time()
-        
+
     if show_animation:
         world.board.quit_animation()
 
@@ -75,13 +77,13 @@ if __name__ == "__main__":
             players.append(PrisonersDilemmaPlayer(Strategy.defect))
 
     # define player update parameters
-    r = 0.05 # probability that a player randomly resets its strategy
-    q = 0.05 # conditional probability that a player resets to cooperate
-    noise1 = True # a boolean indicating whether Noise 1 is present
-    noise2 = False # a boolean indicating whether Noise 2 is present
-    imitation = True # a boolean indicating whether players perform imitation
-    migration = True # a boolean indicating whether players perform migration
-    M = 5 # the range of the Moore neighborhood around each cell
+    r = 0.05  # probability that a player randomly resets its strategy
+    q = 0.05  # conditional probability that a player resets to cooperate
+    noise1 = True  # a boolean indicating whether Noise 1 is present
+    noise2 = False  # a boolean indicating whether Noise 2 is present
+    imitation = True  # a boolean indicating whether players perform imitation
+    migration = True  # a boolean indicating whether players perform migration
+    M = 5  # the range of the Moore neighborhood around each cell
 
     # simulation parameters
     time_max = 15

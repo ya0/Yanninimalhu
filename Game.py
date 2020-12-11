@@ -4,14 +4,19 @@ from enum import Enum
 """
 The range of strategies which a player can perform in a game
 """
+
+
 class Strategy(Enum):
     cooperate = 0
     defect = 1
 
+
 """
 An individual agent involved in a game
 """
-class Player():
+
+
+class Player:
     def __init__(self, strategy):
         self.strategy = strategy
         self.cell = None
@@ -26,16 +31,19 @@ class PrisonersDilemmaPlayer(Player):
 class AsymmetricPrisonersDilemmaPlayer(Player):
     def __init__(self, strategy, p):
         super().__init__(strategy)
-        self.physio = np.random.choice(np.arange(0,2), p=[p, 1-p])
-        self.safety = self.physio*np.random.choice(np.arange(0,2), p=[p, 1-p])
-        self.love = self.safety*np.random.choice(np.arange(0,2), p=[p, 1-p])
-        self.esteem = self.love*np.random.choice(np.arange(0,2), p=[p, 1-p])
-        self.fulfill = self.esteem*np.random.choice(np.arange(0,2), p=[p, 1-p])
+        self.physio = np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.safety = self.physio * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.love = self.safety * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.esteem = self.love * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+        self.fulfill = self.esteem * np.random.choice(np.arange(0, 2), p=[p, 1 - p])
+
 
 """
 A set of rules which defines the interaction between players and determines
 their payoffs
 """
+
+
 class Game(abc.ABC):
     @abc.abstractmethod
     def play(self, p1: Player, p2: Player):
@@ -44,11 +52,11 @@ class Game(abc.ABC):
 
 class PrisonersDilemma(Game):
     def __init__(self, T, R, P, S):
-        """ initialise the prisoners dilemma with:
-            T: temptacion
-            R: reward
-            P: punishment
-            S: sucker's payoff
+        """initialise the prisoners dilemma with:
+        T: temptacion
+        R: reward
+        P: punishment
+        S: sucker's payoff
         """
         self.T = T
         self.R = R
@@ -85,7 +93,7 @@ class AsymmetricPrisonersDilemma(PrisonersDilemma):
                 return (self.T*(2/(1+(p1.physio + p1.safety + p1.love + p1.esteem + p1.fulfill)/5)),
                         self.S*(1+(p2.love + p2.esteem)/2))
             elif p2.strategy == Strategy.defect:
-                return (self.P*(1+p1.fulfill), self.P*(1+p2.fulfill))
+                return (self.P * (1 + p1.fulfill), self.P * (1 + p2.fulfill))
         else:
             print("Player strategies not well defined!")
             exit()
